@@ -1,7 +1,12 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using FlightAlright.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddDbContext<FlightAlrightContext>(options =>
+    options.UseSqlite("Data Source=FlightAlright.db"));
 
 var app = builder.Build();
 
