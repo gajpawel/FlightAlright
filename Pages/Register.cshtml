@@ -1,0 +1,43 @@
+﻿@page
+@model FlightAlright.Pages.RegisterModel
+@{
+	ViewData["Title"] = "Rejestracja";
+}
+
+<h1>Rejestracja</h1>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group">
+        <label for="Account_Name">Imię</label>
+        <input type="text" id="Account_Name" name="Account.Name" class="form-control" asp-for="Account.Name" />
+        <span asp-validation-for="Account.Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="Account_Surname">Nazwisko</label>
+        <input type="text" id="Account_Surname" name="Account.Surname" class="form-control" asp-for="Account.Surname" />
+        <span asp-validation-for="Account.Surname" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="Account_Login">Login</label>
+        <input type="text" id="Account_Login" name="Account.Login" class="form-control" asp-for="Account.Login" required />
+        <span asp-validation-for="Account.Login" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="Account_Password">Hasło</label>
+        <input type="password" id="Account_Password" name="Account.Password" class="form-control" asp-for="Account.Password" required />
+        <span asp-validation-for="Account.Password" class="text-danger"></span>
+    </div>
+
+    <button id="form_button" type="submit" class="btn btn-primary">Zarejestruj</button>
+</form>
+

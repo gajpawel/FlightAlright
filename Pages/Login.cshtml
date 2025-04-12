@@ -1,0 +1,55 @@
+﻿@page
+@model FlightAlright.Pages.LoginModel
+@{
+	ViewData["Title"] = "Logowanie";
+}
+
+<div class="row">
+    <!-- Sekcja logowania -->
+    <div class="col-md-6">
+        <h1>Logowanie</h1>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div id="success-message" class="alert alert-success">@TempData["SuccessMessage"]</div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger">@Model.ErrorMessage</div>
+        }
+
+        <form method="post">
+            <div class="form-group">
+                <label for="Login">Login</label>
+                <input type="text" id="Login" name="Login" class="form-control" asp-for="Login" required />
+                <span asp-validation-for="Login" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="Password">Hasło</label>
+                <input type="password" id="Password" name="Password" class="form-control" asp-for="Password" required />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <button id="form_button" type="submit" class="btn btn-primary">Zaloguj się</button>
+        </form>
+
+        <!-- JavaScript do automatycznego ukrywania powiadomienia -->
+        <script>
+            const successMessage = document.getElementById("success-message");
+
+            if (successMessage) {
+                setTimeout(() => {
+                    successMessage.style.display = "none";
+                }, 2500); // 2,5 sekundy
+            }
+        </script>
+    </div>
+
+    <!-- Sekcja rejestracji -->
+    <div class="col-md-6 d-flex flex-column align-items-center justify-content-center bg-light">
+        <h2>Nie masz konta?</h2>
+        <a href="/Register" class="btn btn-secondary mt-3">Zarejestruj się</a>
+    </div>
+</div>

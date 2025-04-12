@@ -13,24 +13,108 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">FlightAlright</a>
+                <a class="navbar-brand" asp-area="" asp-page="/Index">Strona Główna</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
+                        @if (Context.Session?.GetString("UserType") == "Admin") // Zalogowany jako Admin
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark @(Context.Request.Path == "/Admin/AdminProfile" ? "active" : "")" asp-area="" asp-page="/Admin/AdminProfile">Panel admina</a>
+                            </li>
+                        }
+                        else if (Context.Session?.GetString("UserType") == "Employee") // Zalogowany członek presonelu
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark @(Context.Request.Path == "/AbstractFactory/HairdresserScheduleFactory" ? "active" : "")" asp-area="" asp-page="/AbstractFactory/HairdresserScheduleFactory">Panel fryzjera</a>
+                            </li>
+                        }
+                        else if (Context.Session?.GetString("UserType") == "Client") // Zalogowany klient
+                        {
+
+                        }
+                        else // Niezalogowany użytkownik
+                        {
+
+                        }
+                    </ul>
+                    <ul class="navbar-nav">
+                        @if (Context.Session?.GetString("UserType") == "Admin") // Admin zalogowany
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Panel admina
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+                                    <li>
+                                        <a class="dropdown-item @(Context.Request.Path == "/Admin/AdminProfile" ? "active" : "")" asp-area="" asp-page="/Admin/AdminProfile">Profil admina</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item @(Context.Request.Path == "/ScheduleManagement" ? "active" : "")" asp-area="" asp-page="/ScheduleManagement">Harmonogram</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item @(Context.Request.Path == "/Admin/Requests" ? "active" : "")" asp-area="" asp-page="/Admin/Requests">Wnioski o urlop</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item @(Context.Request.Path == "/Admin/Employee/EmployeeManagement" ? "active" : "")" asp-area="" asp-page="/Admin/Employee/EmployeeManagement">Pracownicy</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item @(Context.Request.Path == "/Admin/Services/Services" ? "active" : "")" asp-area="" asp-page="/Admin/Services/Services">Usługi</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item @(Context.Request.Path == "/Admin/Salon/Salon" ? "active" : "")" asp-area="" asp-page="/Admin/Salon/Salon">Lista lokali</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item @(Context.Request.Path == "/Admin/AccessManagement" ? "active" : "")" asp-area="" asp-page="/Admin/AccessManagement">Dane logowania</a>
+                                    </li>
+                                    <li>
+                                        <form method="post" asp-page="/Index" asp-page-handler="Logout" style="display: inline;">
+                                            <button type="submit" class="dropdown-item">Wyloguj</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else if (Context.Session?.GetString("UserType") == "Employee") // Członek personelu zalogowany
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark @(Context.Request.Path == "/Hairdressers/HairdresserProfile" ? "active" : "")" asp-area="" asp-page="/Hairdressers/HairdresserProfile">Mój profil</a>
+                            </li>
+                            <li class="nav-item">
+                                <form method="post" asp-page="/Index" asp-page-handler="Logout" style="display: inline;">
+                                    <button type="submit" class="btn btn-link nav-link text-dark">Wyloguj</button>
+                                </form>
+                            </li>
+                        }
+                        else if (Context.Session?.GetString("UserType") == "Client") // Klient zalogowany
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark @(Context.Request.Path == "/Clients/ClientProfile" ? "active" : "")" asp-area="" asp-page="/Clients/ClientProfile">Mój profil</a>
+                            </li>
+                            <li class="nav-item">
+                                <form method="post" asp-page="/Index" asp-page-handler="Logout" style="display: inline;">
+                                    <button type="submit" class="btn btn-link nav-link text-dark">Wyloguj</button>
+                                </form>
+                            </li>
+                        }
+                        else // Niezalogowany użytkownik
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark @(Context.Request.Path == "/Login" ? "active" : "")" asp-area="" asp-page="/Login">Zaloguj się</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark @(Context.Request.Path == "/Register" ? "active" : "")" asp-area="" asp-page="/Register">Zarejestruj się</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -39,13 +123,23 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2025 - FlightAlright - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            &copy; 2025 - FlightAlright
         </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Automatyczne ukrywanie powiadomienia -->
+    <script>
+        const globalMessage = document.getElementById("global-message");
+        if (globalMessage) {
+            setTimeout(() => {
+                globalMessage.style.display = "none";
+            }, 2500); // 2,5 sekundy
+        }
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
