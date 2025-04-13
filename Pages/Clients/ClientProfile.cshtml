@@ -1,0 +1,14 @@
+﻿@page
+@model FlightAlright.Pages.Clients.ClientProfileModel
+@{
+    ViewData["Title"] = "Panel Klienta";
+}
+
+<h2>Witaj, @Model.ClientName!</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+<p>To jest Twój panel klienta. W przyszłości znajdziesz tu swoje bilety, historię lotów i inne funkcje.</p>

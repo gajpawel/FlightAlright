@@ -1,7 +1,9 @@
 using FlightAlright.Data;
+using FlightAlright.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlightAlright.Pages
 {
@@ -24,13 +26,9 @@ namespace FlightAlright.Pages
 
         public void OnGet()
         {
-            // Obs³uga wiadomoœci po rejestracji
             if (TempData["SuccessMessage"] != null)
-            {
                 ViewData["SuccessMessage"] = TempData["SuccessMessage"].ToString();
-            }
 
-            // Przechwycenie loginu przekazanego w query string (np. po rejestracji)
             Login = Request.Query["login"];
         }
 
@@ -42,77 +40,37 @@ namespace FlightAlright.Pages
                 return Page();
             }
 
-            // Logowanie jako admin
-            var administrator = _context.Administrator.FirstOrDefault(h => h.Login == Login);
+            var user = _context.Account
+                .Include(a => a.Role)
+                .FirstOrDefault(a => a.Login == Login);
 
-            if (administrator != null)
+            if (user == null)
             {
-                var hasher = new PasswordHasher<string>();
-                var result = hasher.VerifyHashedPassword(null, administrator.Password, Password);
-                if (result == PasswordVerificationResult.Success)
-                {
-                    // Zapisanie danych fryzjera w sesji
-                    HttpContext.Session.SetString("UserLogin", administrator.Login);
-                    HttpContext.Session.SetInt32("HairdresserId", administrator.Id); // Kluczowe dla przekierowania na profil
-                    HttpContext.Session.SetString("UserType", "Admin");
-                    return RedirectToPage("/Admin/AdminProfile"); // Przekierowanie na stronê admina
-                }
-                else
-                {
-                    ErrorMessage = "Nieprawid³owy login lub has³o.";
-                    return Page();
-                }
+                ErrorMessage = "Nie znaleziono u¿ytkownika z takim loginem.";
+                return Page();
             }
 
-            // Logowanie fryzjera
-            var hairdresser = _context.Employee.FirstOrDefault(h => h.login == Login);
+            var hasher = new PasswordHasher<Account>();
+            var result = hasher.VerifyHashedPassword(user, user.Password, Password);
 
-            if (hairdresser != null)
+            if (result != PasswordVerificationResult.Success)
             {
-                var hasher = new PasswordHasher<string>();
-                var result = hasher.VerifyHashedPassword(null, hairdresser.password, Password);
-                if (result == PasswordVerificationResult.Success)
-                {
-                    // Zapisanie danych fryzjera w sesji
-                    HttpContext.Session.SetString("UserLogin", hairdresser.login);
-                    HttpContext.Session.SetInt32("Id", hairdresser.Id); // Kluczowe dla przekierowania na profil
-                    HttpContext.Session.SetString("UserType", "Hairdresser");
-
-                    return RedirectToPage();
-                else
-                {
-                    ErrorMessage = "Nieprawid³owy login lub has³o.";
-                    return Page();
-                }
+                ErrorMessage = "Nieprawid³owy login lub has³o.";
+                return Page();
             }
 
-            // Logowanie klienta
-            var client = _context.Client.FirstOrDefault(c => c.Login == Login);
+            // Zapisanie danych sesji
+            HttpContext.Session.SetInt32("AccountId", user.Id);
+            HttpContext.Session.SetString("UserType", user.Role?.Name ?? "Guest");
 
-            if (client != null)
+            // Przekierowanie na odpowiedni¹ stronê na podstawie roli
+            return user.RoleId switch
             {
-                var hasher = new PasswordHasher<string>();
-                var result = hasher.VerifyHashedPassword(null, client.Password, Password);
-
-                if (result == PasswordVerificationResult.Success)
-                {
-                    // Zapisanie danych klienta w sesji
-                    HttpContext.Session.SetString("UserLogin", client.Login);
-                    HttpContext.Session.SetInt32("ClientId", client.Id); // Dodanie ID klienta jako Int32 do sesji
-                    HttpContext.Session.SetString("UserType", "Client");
-
-                    return RedirectToPage("/Index"); // Przekierowanie na stronê g³ówn¹ klienta
-                }
-                else
-                {
-                    ErrorMessage = "Nieprawid³owy login lub has³o.";
-                    return Page();
-                }
-            }
-
-            // Gdy login nie zosta³ znaleziony
-            ErrorMessage = "Nie znaleziono u¿ytkownika z takim loginem.";
-            return Page();
+                1 => RedirectToPage("/Clients/ClientProfile"),      // Klient
+                2 => RedirectToPage("/Employee/EmployeeProfile"),    // Pracownik
+                3 => RedirectToPage("/Admin/AdminProfile"),// Admin
+                _ => RedirectToPage("/Index")
+            };
         }
     }
 }

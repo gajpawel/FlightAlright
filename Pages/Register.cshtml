@@ -1,7 +1,7 @@
 ﻿@page
 @model FlightAlright.Pages.RegisterModel
 @{
-	ViewData["Title"] = "Rejestracja";
+    ViewData["Title"] = "Rejestracja";
 }
 
 <h1>Rejestracja</h1>
@@ -12,32 +12,31 @@
 }
 
 <form method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div asp-validation-summary="All" class="text-danger"></div>
 
     <div class="form-group">
-        <label for="Account_Name">Imię</label>
-        <input type="text" id="Account_Name" name="Account.Name" class="form-control" asp-for="Account.Name" />
+        <label asp-for="Account.Name">Imię</label>
+        <input asp-for="Account.Name" class="form-control" />
         <span asp-validation-for="Account.Name" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="Account_Surname">Nazwisko</label>
-        <input type="text" id="Account_Surname" name="Account.Surname" class="form-control" asp-for="Account.Surname" />
+        <label asp-for="Account.Surname">Nazwisko</label>
+        <input asp-for="Account.Surname" class="form-control" />
         <span asp-validation-for="Account.Surname" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="Account_Login">Login</label>
-        <input type="text" id="Account_Login" name="Account.Login" class="form-control" asp-for="Account.Login" required />
+        <label asp-for="Account.Login">Login</label>
+        <input asp-for="Account.Login" class="form-control" required />
         <span asp-validation-for="Account.Login" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="Account_Password">Hasło</label>
-        <input type="password" id="Account_Password" name="Account.Password" class="form-control" asp-for="Account.Password" required />
+        <label asp-for="Account.Password">Hasło</label>
+        <input asp-for="Account.Password" class="form-control" type="password" required />
         <span asp-validation-for="Account.Password" class="text-danger"></span>
     </div>
 
-    <button id="form_button" type="submit" class="btn btn-primary">Zarejestruj</button>
+    <button type="submit" class="btn btn-primary">Zarejestruj</button>
 </form>
-

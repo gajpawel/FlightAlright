@@ -21,6 +21,13 @@ builder.Services.AddDbContext<FlightAlrightContext>(options =>
 
 builder.Services.AddHttpContextAccessor(); // Dodana nowa linia do obsługi IHttpContextAccessor
 
+builder.Services.AddAuthentication("MyCookieAuth")
+    .AddCookie("MyCookieAuth", options =>
+    {
+        options.LoginPath = "/Login";
+        options.AccessDeniedPath = "/AccessDenied";
+    });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
