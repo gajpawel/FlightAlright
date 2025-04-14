@@ -16,4 +16,11 @@ public class IndexModel : PageModel
     {
 
     }
+
+    public IActionResult OnPostLogout()
+    {
+        HttpContext.Session.Clear();
+        return RedirectToPage("/Index"); 
+    }
+
 }

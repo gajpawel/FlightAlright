@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using FlightAlright.Data;
 using FlightAlright.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlightAlright.Pages.Clients
 {
@@ -16,26 +17,23 @@ namespace FlightAlright.Pages.Clients
             _context = context;
         }
 
-        public void OnGet()
+        public IActionResult OnGet()
         {
-            // Sprawdzenie, czy u¿ytkownik jest zalogowany
-            if (HttpContext.Session.GetInt32("UserId") == null)
-            {
-                RedirectToPage("/Login");
-                return;
-            }
+            var accountId = HttpContext.Session.GetInt32("AccountId");
 
-            int userId = HttpContext.Session.GetInt32("UserId") ?? 0;
+            if (accountId == null)
+                return RedirectToPage("/Login");
 
-            var account = _context.Account.FirstOrDefault(a => a.Id == userId);
-            if (account != null)
-            {
-                ClientName = account.Name;
-            }
-            else
-            {
-                ClientName = "Nieznany U¿ytkownik";
-            }
+            var account = _context.Account
+                .Include(a => a.Role)
+                .FirstOrDefault(a => a.Id == accountId);
+
+            if (account == null || account.Role?.Name != "Client")
+                return RedirectToPage("/AccessDenied"); // lub do innej strony
+
+            ClientName = $"{account.Name}";
+
+            return Page();
         }
     }
 }

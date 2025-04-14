@@ -3,3 +3,13 @@
 @{
 	ViewData["Title"] = "Panel Pracownika";
 }
+
+<h2>Witaj, @Model.EmployeeName!</h2>
+
+
+@if (TempData["SuccessMessage"] != null)
+{
+	<div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+<p>To jest panel pracownika.</p>
