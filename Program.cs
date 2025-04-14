@@ -47,10 +47,10 @@ app.UseAuthorization();
 //dodawnanie permisji wg folderu w którym znajduje się strona
 var routePermissions = new Dictionary<string, PermissionController.UserTypes[]>
 {
-    { "/Clients", [PermissionController.UserTypes.Client, PermissionController.UserTypes.Admin] },
-    { "/Employees", [PermissionController.UserTypes.Employee, PermissionController.UserTypes.Admin] },
-    { "/Admin", [PermissionController.UserTypes.Admin] },
-    { "/Admin/Services/AddService", new [] { PermissionController.UserTypes.Admin } }
+    { "/Clients", [PermissionController.UserTypes.Client, PermissionController.UserTypes.Administrator] },
+    { "/Employees", [PermissionController.UserTypes.Employee, PermissionController.UserTypes.Administrator] },
+    { "/Admin", [PermissionController.UserTypes.Administrator] },
+    { "/Admin/Services/AddService", new [] { PermissionController.UserTypes.Administrator } }
 };
 
 //rejestracja permisji wykorzystując middleware

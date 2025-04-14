@@ -10,7 +10,7 @@
             Guest,
             Client,
             Employee,
-            Admin
+            Administrator
         }
 
         public PermissionController(RequestDelegate _next, UserTypes[] _allowed)

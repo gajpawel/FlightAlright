@@ -28,10 +28,10 @@ namespace FlightAlright.Pages.Admin
                 .Include(a => a.Role)
                 .FirstOrDefault(a => a.Id == accountId);
 
-            if (account == null || account.Role?.Name != "Admin")
+            if (account == null || account.Role?.Name != "Administrator")
                 return RedirectToPage("/AccessDenied");
 
-            AdminName = account.Name ?? "Admin";
+            AdminName = account.Name ?? "Administrator";
 
             return Page();
         }
