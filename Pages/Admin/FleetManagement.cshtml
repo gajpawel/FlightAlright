@@ -22,8 +22,29 @@
         </div>
     </div>
     <div class="col bg-light">
+        <p>placeholder selection</p>
         <form method="post">
-            <input type="text" required/>
+			<label for="marka">Marka</label>
+            <select id="marka" required>
+				<option value="" selected disabled>Wybierz placeholder markę</option>
+                <option value="0">Dodaj nowy</option>
+				<option value="1">Airbus</option>
+				<option value="2">Boeing</option>
+				<option value="3">Embraer</option>
+				<option value="4">Bombardier</option>
+            </select>
+			<label for="model">Model</label>
+            <select id="model" required>
+				<option value="" selected disabled>Wybierz placeholder model</option>
+				<option value="0">Dodaj nowy</option>
+				<option value="1">Airbus A320</option>
+				<option value="2">Boeing 737</option>
+				<option value="3">Boeing 747</option>
+				<option value="4">Embraer E190</option>
+				<option value="5">Bombardier CRJ900</option>
+            </select>
+			<label for="count">Ilość</label>
+			<input id="count" type="number" min="0" /> 
             <button id="add_plane_button" type="submit" class="btn btn-primary">add plane</button>
         </form>
     </div>
