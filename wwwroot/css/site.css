@@ -29,3 +29,25 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+.admin-menu {
+    width: 100px; /* Set the width of the menu */
+}
+
+    .admin-menu a {
+    background-color: #258cfb; /* Grey background color */
+    color: white; /* Black text color */
+    display: block; /* Make the links appear below each other */
+    padding: 10px; /* Add padding */
+    text-decoration: none; /* Remove underline */
+    margin-bottom: 1px; /* Small gap between menu items */
+    }
+
+        .admin-menu:hover {
+            background-color: #1c5a9c; /* Dark grey background on hover */
+        }
+
+        .admin-menu a.active {
+            background-color: pink; /* Add a green color to the "active/current" link */
+            color: black;
+        }

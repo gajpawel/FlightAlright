@@ -1,9 +1,7 @@
 ﻿@page
-@model FlightAlright.Pages.Admin.AdminProfileModel
+@model FlightAlright.Pages.Admin.AirportManagementModel
 @{
-	ViewData["Title"] = "Panel Administratora";
 }
-
 
 <!-- _VerticalMenu.cshtml -->
 @{
@@ -24,18 +22,8 @@
     </div>
     <div class="col bg-light">
         <form method="post">
-            <h2>Witaj, @Model.AdminName!</h2>
-
-
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-            }
-
-            <p>To jest panel administratora.</p>
-
-            <!-- additional content here-->
-            <p>additional content goes here</p>
+            <!-- content here-->
+            <p> content goes here</p>
         </form>
     </div>
 </div>
