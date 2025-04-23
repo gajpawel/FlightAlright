@@ -1,42 +1,44 @@
 ﻿@page
 @model FlightAlright.Pages.Employees.IndexModel
-
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Lista pracowników";
 }
 
-<h1>Index</h1>
+<h2>Lista pracowników</h2>
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Employee[0].Account)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employee[0].Position)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.Employee) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Account.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Position.Id)
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+@if (!Model.Employee.Any())
+{
+    <div class="alert alert-info">Brak pracowników w systemie.</div>
 }
-    </tbody>
-</table>
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Imię</th>
+                <th>Nazwisko</th>
+                <th>Konto</th>
+                <th>Stanowisko</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var emp in Model.Employee)
+            {
+                <tr>
+                    <td>@emp.Account?.Name</td>
+                    <td>@emp.Account?.Surname</td>
+                    <td>@emp.Account?.Login</td>
+                    <td>@emp.Position?.Name</td>
+                    <td>
+                        <a class="btn btn-sm btn-outline-primary" asp-page="./Edit" asp-route-id="@emp.Id">Edytuj</a>
+                        <a class="btn btn-sm btn-outline-info ms-1" asp-page="./Details" asp-route-id="@emp.Id">Szczegóły</a>
+                        <a class="btn btn-sm btn-outline-danger ms-1" asp-page="./Delete" asp-route-id="@emp.Id">Usuń</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<a asp-page="/Admin/PersonelManagement" class="btn btn-secondary mt-3">↩ Wróć do panelu admina</a>
