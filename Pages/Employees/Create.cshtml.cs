@@ -37,8 +37,16 @@ namespace FlightAlright.Pages.Employees
                 return Page();
 
             _context.Employee.Add(Employee);
-            await _context.SaveChangesAsync();
 
+            // automatyczna zmiana roli konta na „pracownik”
+            var account = await _context.Account.FindAsync(Employee.AccountId);
+            if (account != null)
+            {
+                account.RoleId = 2; // zakładamy: 2 = pracownik
+                _context.Account.Update(account);
+            }
+
+            await _context.SaveChangesAsync();
             return RedirectToPage("/Admin/PersonelManagement");
         }
     }
