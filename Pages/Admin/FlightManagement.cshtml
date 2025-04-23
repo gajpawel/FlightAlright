@@ -1,0 +1,47 @@
+﻿@page
+@model FlightAlright.Pages.Admin.FlightManagementModel
+@{
+    ViewData["Title"] = "Dodaj nowe połączenie lotnicze";
+}
+
+    <h2>Dodaj nowe połączenie lotnicze</h2>
+
+    <form method="post">
+        <div class="mb-3">
+            <label asp-for="Flight.DepartureDate" class="form-label">Data i czas odlotu</label>
+            <input asp-for="Flight.DepartureDate" class="form-control" type="datetime-local" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Flight.ArrivalDate" class="form-label">Data i czas przylotu</label>
+            <input asp-for="Flight.ArrivalDate" class="form-control" type="datetime-local" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Flight.DepartureAirportId" class="form-label">Lotnisko startowe</label>
+            <select asp-for="Flight.DepartureAirportId" class="form-select" asp-items="Model.AirportSelectList">
+                <option value="">-- Wybierz lotnisko --</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Flight.ArrivalAirportId" class="form-label">Lotnisko docelowe</label>
+            <select asp-for="Flight.ArrivalAirportId" class="form-select" asp-items="Model.AirportSelectList">
+                <option value="">-- Wybierz lotnisko --</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Flight.PlaneId" class="form-label">Samolot</label>
+            <select asp-for="Flight.PlaneId" class="form-select" asp-items="Model.PlaneSelectList">
+                <option value="">-- Wybierz samolot --</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="SelectedEmployeeIds" class="form-label">Pracownicy obsługujący lot</label>
+            <select asp-for="SelectedEmployeeIds" class="form-select" asp-items="Model.EmployeeSelectList" multiple size="5"></select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Dodaj połączenie</button>
+    </form>

@@ -22,7 +22,7 @@
                         @* Można dodać wspólne linki dla wszystkich *@
                     </ul>
                     <ul class="navbar-nav">
-                        @if (Context.Session?.GetString("UserType") == "Admin")
+                        @if (Context.Session?.GetString("UserType") == "Administrator")
                         {
                             <li class="nav-item">
                                 <a class="nav-link @(Context.Request.Path == "/Admin/AdminProfile" ? "active" : "")" asp-page="/Admin/AdminProfile">Panel administratora</a>
