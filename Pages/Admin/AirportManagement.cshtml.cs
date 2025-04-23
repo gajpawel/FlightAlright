@@ -16,21 +16,26 @@ namespace FlightAlright.Pages.Admin
 
         [BindProperty]
         public Airport NewAirport { get; set; } = new();
+
+        public List<Airport> ExistingAirports { get; set; } = new();
         public void OnGet()
         {
+            ExistingAirports = _context.Airport.ToList();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
             {
+                ExistingAirports = _context.Airport.ToList();
                 return Page();
             }
 
             _context.Airport.Add(NewAirport);
             await _context.SaveChangesAsync();
 
-           
+            ExistingAirports = _context.Airport.ToList();
+
             return RedirectToPage(); // Odœwie¿enie po dodaniu
         }
     }

@@ -41,5 +41,37 @@
             </div>
             <button type="submit" class="btn btn-primary">Zapisz</button>
         </form>
+        <h4 class="mt-5">Istniejące lotniska</h4>
+
+        @if (Model.ExistingAirports.Any())
+        {
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Kod</th>
+                        <th>Nazwa</th>
+                        <th>Miasto</th>
+                        <th>Kraj</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var airport in Model.ExistingAirports)
+                    {
+                        <tr>
+                            <td>@airport.Id</td>
+                            <td>@airport.Code</td>
+                            <td>@airport.Name</td>
+                            <td>@airport.City</td>
+                            <td>@airport.Country</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>Brak dodanych lotnisk.</p>
+        }
     </div>
 </div>
