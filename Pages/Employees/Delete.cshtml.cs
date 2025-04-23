@@ -43,20 +43,27 @@ namespace FlightAlright.Pages.Employees
 
         public async Task<IActionResult> OnPostAsync(int? id)
         {
-            if (id == null)
-            {
+            if (id == null || _context.Employee == null)
                 return NotFound();
-            }
 
             var employee = await _context.Employee.FindAsync(id);
+
             if (employee != null)
             {
-                Employee = employee;
-                _context.Employee.Remove(Employee);
+                _context.Employee.Remove(employee);
+
+                var account = await _context.Account.FindAsync(employee.AccountId);
+                if (account != null)
+                {
+                    account.RoleId = 1; 
+                    _context.Account.Update(account);
+                }
+
                 await _context.SaveChangesAsync();
             }
 
             return RedirectToPage("./Index");
         }
+
     }
 }
