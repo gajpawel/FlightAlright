@@ -1,7 +1,7 @@
 ﻿@page
 @model FlightAlright.Pages.Admin.FleetManagementModel
 @{
-	ViewData["Title"] = "Zarządzanie Flotą";
+    ViewData["Title"] = "Zarządzanie Flotą";
 }
 
 <!-- _VerticalMenu.cshtml -->
@@ -22,30 +22,92 @@
         </div>
     </div>
     <div class="col bg-light">
-        <p>placeholder selection</p>
-        <form method="post">
-			<label for="marka">Marka</label>
-            <select id="marka" required>
-				<option value="" selected disabled>Wybierz placeholder markę</option>
-                <option value="0">Dodaj nowy</option>
-				<option value="1">Airbus</option>
-				<option value="2">Boeing</option>
-				<option value="3">Embraer</option>
-				<option value="4">Bombardier</option>
-            </select>
-			<label for="model">Model</label>
-            <select id="model" required>
-				<option value="" selected disabled>Wybierz placeholder model</option>
-				<option value="0">Dodaj nowy</option>
-				<option value="1">Airbus A320</option>
-				<option value="2">Boeing 737</option>
-				<option value="3">Boeing 747</option>
-				<option value="4">Embraer E190</option>
-				<option value="5">Bombardier CRJ900</option>
-            </select>
-			<label for="count">Ilość</label>
-			<input id="count" type="number" min="0" /> 
-            <button id="add_plane_button" type="submit" class="btn btn-primary">add plane</button>
+        <!--add to fleet-->
+        <div class="container">
+            <div class="row">
+                <form method="post" asp-page-handler="SelectBrand" class="col-md-3">
+                    <div class="form-group">
+                        <label for="selectbrand">Marka:</label>
+                        <select id="selectbrand" class="form-control" asp-for="SelectedBrandId" asp-items="Model.brands" name="SelectedBrandId" onchange="this.form.submit()">
+                            <option value="">-- Select Brand --</option>
+                        </select>
+                    </div>
+                </form>
+
+                <form method="post" asp-page-handler="AddToFleet" class="col-md-9">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Model:</label>
+                                <select class="form-control" asp-for="SelectedModelId" asp-items="Model.models">
+                                    <option value="">-- Select Model --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="count">Ilość</label>
+                                <input id="count" class="form-control" type="number" asp-for="count" value="1" min="1" />
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group" style="margin-top: 32px;">
+                                <button id="add_to_fleet_button" type="submit" class="btn btn-primary">Dodaj do floty</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <br />
+
+        <!--add to selection-->
+        <form method="post" asp-page-handler="AddModel">
+            <div class="row">
+                <div class="col">
+                    <label for="brand">Marka: </label>
+                    <input id="brand" class="form-control" type="text" asp-for="NewBrandName" />
+                    <select class="form-control" asp-for="SelectedBrandId" asp-items="Model.brands">
+                        <option value="">-- Or choose existing --</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="model">Model: </label>
+                    <input id="model" class="form-control" type="text" asp-for="NewModelName" required />
+                </div>
+                <div class="col">
+                    <label for="range">Zasięg: </label>
+                    <input id="range" class="form-control" type="number" value="100" min="0" asp-for="maxRange" />
+                </div>
+                <div class="col">
+                    <button id="add_plane_button" type="submit" class="btn btn-primary">Dodaj do wyboru</button>
+                </div>
+            </div>
         </form>
+        <br />
+        <div class="row">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+						<th>Id</th>
+                        <th>Marka</th>
+                        <th>Model</th>
+                        <th>Zasięg</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var plane in Model.fleet)
+                    {
+                        <tr>
+							<td>@plane.Id</td>
+                            <td>@plane.Brand.Name</td>
+                            <td>@plane.Brand.Model</td>
+                            <td>@plane.Brand.MaxDistance</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
