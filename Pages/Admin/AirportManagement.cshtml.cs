@@ -19,19 +19,5 @@ namespace FlightAlright.Pages.Admin
         public void OnGet()
         {
         }
-
-        public async Task<IActionResult> OnPostAsync()
-        {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
-            _context.Airport.Add(NewAirport);
-            await _context.SaveChangesAsync();
-
-           
-            return RedirectToPage(); // Odœwie¿enie po dodaniu
-        }
     }
 }
