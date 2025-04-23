@@ -22,8 +22,24 @@
     </div>
     <div class="col bg-light">
         <form method="post">
-            <!-- content here-->
-            <p> content goes here</p>
+            <h3>Dodaj nowe lotnisko</h3>
+            <div class="form-group">
+                <label asp-for="NewAirport.Code" class="form-label"></label>
+                <input asp-for="NewAirport.Code" class="form-control" maxlength="1" />
+            </div>
+            <div class="form-group">
+                <label asp-for="NewAirport.Name" class="form-label"></label>
+                <input asp-for="NewAirport.Name" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="NewAirport.City" class="form-label"></label>
+                <input asp-for="NewAirport.City" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="NewAirport.Country" class="form-label"></label>
+                <input asp-for="NewAirport.Country" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-primary">Zapisz</button>
         </form>
     </div>
 </div>
