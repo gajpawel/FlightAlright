@@ -1,0 +1,9 @@
+﻿@model (string currentPage, List<(string Title, string PageName)> menuItems)
+
+<div class="admin-menu">
+    @foreach (var item in Model.menuItems)
+    {
+        var isActive = Model.currentPage.EndsWith(item.PageName, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+        <a asp-page="@item.PageName" class="@isActive">@item.Title</a>
+    }
+</div>
