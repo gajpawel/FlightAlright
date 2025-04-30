@@ -10,5 +10,6 @@ namespace FlightAlright.Models
         [ForeignKey("Brand")]
         public int? BrandId { get; set; }
         public Brand? Brand { get; set; }
+        public char? Status { get; set; } //np. D - dostępny, L - obsługuje lot, N - nieczynny, S - w serwisie
     }
 }
