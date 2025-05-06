@@ -67,8 +67,8 @@ namespace FlightAlright.Pages.Admin
             }
             Flight.DepartureAirport = _context.Airport.FirstOrDefault(A => A.Id == Flight.DepartureAirportId);
             Flight.ArrivalAirport = _context.Airport.FirstOrDefault(A => A.Id == Flight.ArrivalAirportId);
-            Flight.DepartureDate.Value.AddDays(Flight.DepartureAirport.TimeZoneOffset.Value);
-            Flight.ArrivalDate.Value.AddDays(Flight.ArrivalAirport.TimeZoneOffset.Value);
+            Flight.DepartureDate.Value.AddHours(Flight.DepartureAirport.TimeZoneOffset.Value);
+            Flight.ArrivalDate.Value.AddHours(Flight.ArrivalAirport.TimeZoneOffset.Value);
             _context.Flight.Add(Flight);
             _context.SaveChanges();
 

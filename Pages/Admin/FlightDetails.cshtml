@@ -14,9 +14,9 @@ else
 {
     <div class="mb-4">
         <h4>Informacje o locie</h4>
-        <p><strong>Data odlotu:</strong> @Model.Flight.DepartureDate</p>
-        <p><strong>Data przylotu:</strong> @Model.Flight.ArrivalDate</p>
+        <p><strong>Data odlotu:</strong> @Model.Flight.DepartureDate.Value.AddHours(Model.Flight.DepartureAirport.TimeZoneOffset.Value)</p>
         <p><strong>Lotnisko wylotu:</strong> @Model.Flight.DepartureAirport?.Name</p>
+        <p><strong>Data przylotu:</strong> @Model.Flight.ArrivalDate.Value.AddHours(Model.Flight.DepartureAirport.TimeZoneOffset.Value)</p>
         <p><strong>Lotnisko przylotu:</strong> @Model.Flight.ArrivalAirport?.Name</p>
     </div>
 
@@ -66,7 +66,7 @@ else
                     {
                         <tr>
                             <td>@price.ClassName</td>
-                            <td>@price.MaxSeatsNumber z @price.SeatsNumber</td>
+                            <td>@price.SeatsNumber z @price.MaxSeatsNumber</td>
                             <td>@price.CurrentPrice.ToString("C")</td>
                         </tr>
                     }

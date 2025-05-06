@@ -45,9 +45,9 @@
                     @foreach (var flight in Model.Flights)
                     {
                         <tr>
-                            <td>@flight.DepartureDate</td>
+                            <td>@flight.DepartureDate.Value.AddHours(flight.DepartureAirport.TimeZoneOffset.Value)</td>
                             <td>@flight.DepartureAirport?.Name</td>
-                            <td>@flight.ArrivalDate</td>
+                            <td>@flight.ArrivalDate.Value.AddHours(flight.ArrivalAirport.TimeZoneOffset.Value)</td>
                             <td>@flight.ArrivalAirport?.Name</td>
                             <td>
                                 <a asp-page="./FlightDetails" asp-route-id="@flight.Id" class="btn btn-info btn-sm">Szczegóły</a>
