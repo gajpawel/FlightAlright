@@ -1,47 +1,66 @@
 ﻿@page
 @model FlightAlright.Pages.Admin.FlightManagementModel
 @{
-    ViewData["Title"] = "Dodaj nowe połączenie lotnicze";
+    ViewData["Title"] = "Zarządzanie lotami";
 }
 
-    <h2>Dodaj nowe połączenie lotnicze</h2>
+@{
+    string GetActiveClass(string pageName)
+    {
+        return ViewContext.RouteData.Values["Page"].ToString().EndsWith(pageName) ? "active" : "";
+    }
+}
 
-    <form method="post">
-        <div class="mb-3">
-            <label asp-for="Flight.DepartureDate" class="form-label">Data i czas odlotu</label>
-            <input asp-for="Flight.DepartureDate" class="form-control" type="datetime-local" />
+<div class="row">
+    <div class="col-md-auto">
+        <div class="admin-menu">
+            <a asp-page="./AdminProfile" class="@GetActiveClass("/AdminProfile")">Konto</a>
+            <a asp-page="./PersonelManagement" class="@GetActiveClass("/PersonelManagement")">Personel</a>
+            <a asp-page="./AirportManagement" class="@GetActiveClass("/AirportManagement")">Lotniska</a>
+            <a asp-page="./FleetManagement" class="@GetActiveClass("/FleetManagement")">Flota</a>
+            <a asp-page="./FlightManagement" class="@GetActiveClass("/FlightManagement")">Loty</a>
         </div>
+    </div>
 
-        <div class="mb-3">
-            <label asp-for="Flight.ArrivalDate" class="form-label">Data i czas przylotu</label>
-            <input asp-for="Flight.ArrivalDate" class="form-control" type="datetime-local" />
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="Flight.DepartureAirportId" class="form-label">Lotnisko startowe</label>
-            <select asp-for="Flight.DepartureAirportId" class="form-select" asp-items="Model.AirportSelectList">
-                <option value="">-- Wybierz lotnisko --</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="Flight.ArrivalAirportId" class="form-label">Lotnisko docelowe</label>
-            <select asp-for="Flight.ArrivalAirportId" class="form-select" asp-items="Model.AirportSelectList">
-                <option value="">-- Wybierz lotnisko --</option>
-            </select>
-        </div>
+    <div class="col bg-light p-4">
+        <h2>Zarządzanie lotami</h2>
 
         <div class="mb-3">
-            <label asp-for="Flight.PlaneId" class="form-label">Samolot</label>
-            <select asp-for="Flight.PlaneId" class="form-select" asp-items="Model.PlaneSelectList">
-                <option value="">-- Wybierz samolot --</option>
-            </select>
+            <a asp-page="./AddFlight" class="btn btn-primary">Dodaj nowy lot</a>
         </div>
 
-        <div class="mb-3">
-            <label for="SelectedEmployeeIds" class="form-label">Pracownicy obsługujący lot</label>
-            <select asp-for="SelectedEmployeeIds" class="form-select" asp-items="Model.EmployeeSelectList" multiple size="5"></select>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Dodaj połączenie</button>
-    </form>
+        @if (Model.Flights != null && Model.Flights.Any())
+        {
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Data odlotu</th>
+                        <th>Lotnisko wylotu</th>
+                        <th>Data przylotu</th>
+                        <th>Lotnisko przylotu</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var flight in Model.Flights)
+                    {
+                        <tr>
+                            <td>@flight.DepartureDate</td>
+                            <td>@flight.DepartureAirport?.Name</td>
+                            <td>@flight.ArrivalDate</td>
+                            <td>@flight.ArrivalAirport?.Name</td>
+                            <td>
+                                <a asp-page="./FlightDetails" asp-route-id="@flight.Id" class="btn btn-info btn-sm">Szczegóły</a>
+                                <a asp-page="./EditFlight" asp-route-id="@flight.Id" class="btn btn-warning btn-sm">Edytuj</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>Brak dostępnych lotów.</p>
+        }
+    </div>
+</div>

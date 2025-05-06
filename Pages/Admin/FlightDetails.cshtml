@@ -1,0 +1,81 @@
+﻿@page "{id:int}"
+@model FlightAlright.Pages.Admin.FlightDetailsModel
+@{
+    ViewData["Title"] = "Szczegóły lotu";
+}
+
+<h2>Szczegóły lotu</h2>
+
+@if (Model.Flight == null)
+{
+    <div class="alert alert-danger">Nie znaleziono lotu o podanym ID.</div>
+}
+else
+{
+    <div class="mb-4">
+        <h4>Informacje o locie</h4>
+        <p><strong>Data odlotu:</strong> @Model.Flight.DepartureDate</p>
+        <p><strong>Data przylotu:</strong> @Model.Flight.ArrivalDate</p>
+        <p><strong>Lotnisko wylotu:</strong> @Model.Flight.DepartureAirport?.Name</p>
+        <p><strong>Lotnisko przylotu:</strong> @Model.Flight.ArrivalAirport?.Name</p>
+    </div>
+
+    <div class="mb-4">
+        <h4>Samolot</h4>
+        @if (Model.Flight.Plane != null)
+        {
+            <p>@Model.Flight.Plane.Brand.Name @Model.Flight.Plane.Brand.Model (ID: @Model.Flight.Plane.Id)</p>
+        }
+        else
+        {
+            <p><em>Brak przypisanego samolotu.</em></p>
+        }
+    </div>
+
+    <div class="mb-4">
+        <h4>Załoga</h4>
+        @if (Model.CrewMembers.Any())
+        {
+            <ul>
+                @foreach (var member in Model.CrewMembers)
+                {
+                    <li>@member.Name @member.Surname (@member.PositionName)</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p><em>Brak przypisanej załogi.</em></p>
+        }
+    </div>
+
+    <div class="mb-4">
+        <h4>Pule biletów</h4>
+        @if (Model.Prices.Any())
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Klasa</th>
+                        <th>Liczba miejsc</th>
+                        <th>Cena</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var price in Model.Prices)
+                    {
+                        <tr>
+                            <td>@price.ClassName</td>
+                            <td>@price.MaxSeatsNumber z @price.SeatsNumber</td>
+                            <td>@price.CurrentPrice.ToString("C")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p><em>Brak dostępnych cen.</em></p>
+        }
+    </div>
+}
