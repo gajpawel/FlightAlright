@@ -67,8 +67,9 @@ namespace FlightAlright.Pages.Admin
             }
             Flight.DepartureAirport = _context.Airport.FirstOrDefault(A => A.Id == Flight.DepartureAirportId);
             Flight.ArrivalAirport = _context.Airport.FirstOrDefault(A => A.Id == Flight.ArrivalAirportId);
-            Flight.DepartureDate.Value.AddHours(Flight.DepartureAirport.TimeZoneOffset.Value);
-            Flight.ArrivalDate.Value.AddHours(Flight.ArrivalAirport.TimeZoneOffset.Value);
+            Flight.DepartureDate = Flight.DepartureDate?.AddHours(-Flight.DepartureAirport.TimeZoneOffset.Value);
+            Flight.ArrivalDate = Flight.ArrivalDate?.AddHours(-Flight.ArrivalAirport.TimeZoneOffset.Value);
+            Flight.Status = true;
             _context.Flight.Add(Flight);
             _context.SaveChanges();
 
@@ -86,7 +87,7 @@ namespace FlightAlright.Pages.Admin
                 _context.SaveChanges();
             }
 
-            return RedirectToPage("/Admin/AdminProfile"); // lub inna strona po zapisaniu
+            return RedirectToPage("/Admin/PriceManagement", new { flightId = Flight.Id });
         }
     }
 }
