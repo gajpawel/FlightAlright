@@ -24,7 +24,7 @@ namespace FlightAlright.Pages.Admin
 
         public SelectList AirportSelectList { get; set; }
         public SelectList PlaneSelectList { get; set; }
-        public SelectList EmployeeSelectList { get; set; }
+        public List<SelectListItem> EmployeeItems { get; set; }
 
 
         public void OnGet()
@@ -49,13 +49,16 @@ namespace FlightAlright.Pages.Admin
             .ToList();
 
             // Przygotuj listê do wyœwietlenia w formacie: "Imiê Nazwisko (Stanowisko)"
-            var employeeItems = employees.Select(e => new SelectListItem
-            {
-                Value = e.Id.ToString(),
-                Text = $"{e.Account.Name} {e.Account.Surname} ({e.Position.Name})"
-            }).ToList();
+            EmployeeItems = _context.Employee
+                .Include(e => e.Account)
+                .Include(e => e.Position)
+                .ToList()
+                .Select(e => new SelectListItem
+                {
+                    Value = e.Id.ToString(),
+                    Text = $"{e.Account.Name} {e.Account.Surname} ({e.Position.Name})"
+                }).ToList();
 
-            EmployeeSelectList = new SelectList(employeeItems, "Value", "Text");
         }
 
         public IActionResult OnPost()
@@ -70,6 +73,14 @@ namespace FlightAlright.Pages.Admin
             Flight.DepartureDate = Flight.DepartureDate?.AddHours(-Flight.DepartureAirport.TimeZoneOffset.Value);
             Flight.ArrivalDate = Flight.ArrivalDate?.AddHours(-Flight.ArrivalAirport.TimeZoneOffset.Value);
             Flight.Status = true;
+
+            if (Flight.DepartureDate >= Flight.ArrivalDate || Flight.ArrivalDate < DateTime.UtcNow || Flight.DepartureDate < DateTime.UtcNow || Flight.ArrivalAirportId==Flight.DepartureAirportId)
+            {
+                ModelState.AddModelError(string.Empty, "SprawdŸ poprawnoœæ wpisywanych danych");
+                OnGet();
+                return Page();
+            }
+
             _context.Flight.Add(Flight);
             _context.SaveChanges();
 

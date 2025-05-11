@@ -44,8 +44,8 @@ namespace FlightAlright.Pages.Admin
             if (Flight == null)
                 return NotFound();
 
-            await LoadAvailableClassesAsync();
             await LoadExistingPricesAsync();
+            await LoadAvailableClassesAsync();
 
             return Page();
         }
@@ -71,6 +71,16 @@ namespace FlightAlright.Pages.Admin
                 CurrentPrice = Price
             };
 
+            await LoadExistingPricesAsync();
+            foreach (var price in ExistingPrices)
+            {
+                if (price.ClassId == newPrice.ClassId)
+                {
+                    price.CurrentPrice = Price;
+                    await _context.SaveChangesAsync();
+                    return RedirectToPage(new { flightId = Flight.Id });
+                }
+            }
             _context.Price.Add(newPrice);
             await _context.SaveChangesAsync();
 

@@ -4,7 +4,7 @@
     ViewData["Title"] = "Zarządzanie cenami";
 }
 
-<h2>Dodaj pule biletów dla lotu</h2>
+<h2>Dodaj lub edytuj pule biletów dla lotu</h2>
 
 <p><strong>Lot:</strong> @Model.Flight.DepartureAirport.Name → @Model.Flight.ArrivalAirport.Name<br />
 <strong>Data:</strong> @Model.Flight.DepartureDate?.ToLocalTime()</p>
@@ -19,7 +19,7 @@
 
     <div class="mb-3">
         <label asp-for="Price" class="form-label">Cena (PLN)</label>
-        <input asp-for="Price" class="form-control" type="number" step="0.01" min="0" />
+        <input asp-for="Price" class="form-control" type="number" step="0.01" min="1" />
         <span asp-validation-for="Price" class="text-danger"></span>
     </div>
 
