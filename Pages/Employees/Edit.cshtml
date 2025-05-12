@@ -2,41 +2,46 @@
 @model FlightAlright.Pages.Employees.EditModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edytuj pracownika";
 }
 
-<h1>Edit</h1>
-
-<h4>Employee</h4>
+<h2>Edytuj pracownika</h2>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Employee.Id" />
-            <div class="form-group">
-                
-                <label asp-for="Employee.AccountId" class="control-label"></label>
-                <select asp-for="Employee.AccountId" class="form-control" asp-items="ViewBag.AccountId"></select>
-                <span asp-validation-for="Employee.AccountId" class="text-danger"></span>
+
+            <div class="form-group mb-3">
+                <label asp-for="Login" class="form-label">Login konta</label>
+                <input asp-for="Login" class="form-control" />
+                <span asp-validation-for="Login" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                
-                <label asp-for="Employee.PositionId" class="control-label"></label>
+
+            <div class="form-group mb-3">
+                <label asp-for="Password" class="form-label">Nowe hasło (opcjonalnie)</label>
+                <input asp-for="Password" class="form-control" type="password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+                <span class="form-text text-muted">
+                    Pozostaw puste, jeśli nie chcesz zmieniać hasła.
+                </span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Employee.PositionId" class="form-label">Stanowisko</label>
                 <select asp-for="Employee.PositionId" class="form-control" asp-items="ViewBag.PositionId"></select>
                 <span asp-validation-for="Employee.PositionId" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
+
+            <button type="submit" class="btn btn-success">Zapisz</button>
+            <a asp-page="./Index" class="btn btn-secondary ms-2">Anuluj</a>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-page="./Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

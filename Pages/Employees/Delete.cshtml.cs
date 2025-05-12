@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using FlightAlright.Data;
 using FlightAlright.Models;
+using System.Threading.Tasks;
 
 namespace FlightAlright.Pages.Employees
 {
     public class DeleteModel : PageModel
     {
-        private readonly FlightAlright.Data.FlightAlrightContext _context;
+        private readonly FlightAlrightContext _context;
 
-        public DeleteModel(FlightAlright.Data.FlightAlrightContext context)
+        public DeleteModel(FlightAlrightContext context)
         {
             _context = context;
         }
@@ -25,20 +22,17 @@ namespace FlightAlright.Pages.Employees
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var employee = await _context.Employee.FirstOrDefaultAsync(m => m.Id == id);
+            Employee = await _context.Employee
+                .Include(e => e.Account)
+                .Include(e => e.Position)
+                .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (employee is not null)
-            {
-                Employee = employee;
+            if (Employee == null)
+                return NotFound();
 
-                return Page();
-            }
-
-            return NotFound();
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync(int? id)
@@ -46,24 +40,26 @@ namespace FlightAlright.Pages.Employees
             if (id == null || _context.Employee == null)
                 return NotFound();
 
-            var employee = await _context.Employee.FindAsync(id);
+            var employee = await _context.Employee
+                .Include(e => e.Account)
+                .FirstOrDefaultAsync(e => e.Id == id);
 
             if (employee != null)
             {
-                _context.Employee.Remove(employee);
-
-                var account = await _context.Account.FindAsync(employee.AccountId);
-                if (account != null)
+                if (employee.Account != null)
                 {
-                    account.RoleId = 1; 
-                    _context.Account.Update(account);
+                    employee.Account.RoleId = 1;
+                    _context.Account.Update(employee.Account);
                 }
+
+                employee.Status = false;
+                _context.Employee.Update(employee);
 
                 await _context.SaveChangesAsync();
             }
 
+
             return RedirectToPage("./Index");
         }
-
     }
 }
