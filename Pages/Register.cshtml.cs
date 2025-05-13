@@ -47,7 +47,7 @@ namespace FlightAlright.Pages
 
             if (!IsPasswordValid(Account.Password))
             {
-                ModelState.AddModelError("Account.Password", "Has³o musi mieæ min. 8 znaków, zawieraæ ma³¹ i wielk¹ literê oraz znak specjalny.");
+                ModelState.AddModelError("Account.Password", "Has³o musi mieæ min. 8 znaków, ma³¹ i wielk¹ literê, cyfrê oraz znak specjalny.");
                 return Page();
             }
 
@@ -83,10 +83,10 @@ namespace FlightAlright.Pages
 
         private bool IsPasswordValid(string password)
         {
-            // Minimum 8 znaków, 1 ma³a litera, 1 wielka litera, 1 znak specjalny
-            var regex = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$");
+            var regex = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$");
             return regex.IsMatch(password);
         }
+
     }
 }
 
