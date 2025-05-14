@@ -23,6 +23,15 @@
         </div>
     </div>
     <div class="col bg-light">
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+        }
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+        }
+
         <!--add to fleet-->
         <div class="container">
             <div class="row">
@@ -97,37 +106,226 @@
             </div>
         </form>
         <br />
-        <!--plane list-->
-        <div class="row">
-            <table class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-						<th>Id</th>
-                        <th>Status</th>
-                        <th>Marka</th>
-                        <th>Model</th>
-                        <th>Zasięg</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var plane in Model.fleet)
-                    {
+        <!-- Tab Navigation -->
+        <ul class="nav nav-tabs" id="tableTabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="fleet-tab" data-bs-toggle="tab" href="#fleetTab" role="tab">Flota</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="planeSelection-tab" data-bs-toggle="tab" href="#planeSelectionTab" role="tab">Dostępne modele samolotów</a>
+            </li>
+            <li class="nav-item d-none" id="editTabItem">
+                <a class="nav-link" id="edit-tab" data-bs-toggle="tab" href="#editTab" role="tab">Edycja</a>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content mt-4" id="tableTabContent">
+
+            <!-- Flota Table -->
+            <div class="tab-pane fade show active" id="fleetTab" role="tabpanel">
+                <table class="table table-striped table-bordered">
+                    <thead>
                         <tr>
-							<td>@plane.Id</td>
-							<td width="40">@plane.Status</td>
-                            <td>@plane.Brand.Name</td>
-                            <td>@plane.Brand.Model</td>
-                            <td>@plane.Brand.MaxDistance</td>
+                            <th>Id</th>
+                            <th>Status</th>
+                            <th>Marka</th>
+                            <th>Model</th>
+                            <th>Zasięg</th>
+                            <th>Akcja</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var plane in Model.fleet)
+                        {
+                            <tr>
+                                <td>@plane.Id</td>
+                                <td>@(plane.Status ?? ' ')</td>
+                                <td>@plane.Brand?.Name</td>
+                                <td>@plane.Brand?.Model</td>
+                                <td>@plane.Brand?.MaxDistance</td>
+                                <td>
+                                    <form method="post" asp-page-handler="ChangeStatus">
+                                        <input type="hidden" name="planeId" value="@plane.Id" />
+                                        <input type="hidden" name="status" value="D" />
+                                        <button class="btn btn-success btn-sm" type="submit" @(plane.Status == 'D' ? "disabled" : "")>Aktywuj</button>
+                                    </form>
+                                    <form method="post" asp-page-handler="ChangeStatus">
+                                        <input type="hidden" name="planeId" value="@plane.Id" />
+                                        <input type="hidden" name="status" value="N" />
+                                        <button class="btn btn-warning btn-sm" type="submit" @(plane.Status == 'N' ? "disabled" : "")>Dezaktywuj</button>
+                                    </form>
+                                    <form method="post" asp-page-handler="ChangeStatus">
+                                        <input type="hidden" name="planeId" value="@plane.Id" />
+                                        <input type="hidden" name="status" value="S" />
+                                        <button class="btn btn-danger btn-sm" type="submit" @(plane.Status == 'S' ? "disabled" : "")>Serwis</button>
+                                    </form>
+                                </td>
+                            </tr>
+
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Wybór Samolotu Table -->
+            <div class="tab-pane fade" id="planeSelectionTab" role="tabpanel">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Marka</th>
+                            <th>Model</th>
+                            <th>Zasięg</th>
+                            <th>Akcja</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var plane in Model.planeSelection)
+                        {
+                            <tr>
+                                <td>@plane.Id</td>
+                                <td>@plane.Name</td>
+                                <td>@plane.Model</td>
+                                <td>@plane.MaxDistance</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary"
+                                            onclick="editPlaneModel(@plane.Id, '@plane.Name', '@plane.Model', @plane.MaxDistance)">
+                                        Edytuj
+                                    </button>
+
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Edit tab -->
+            <!-- Replace the edit tab content -->
+            <div class="tab-pane fade" id="editTab" role="tabpanel">
+                <h5 id="editTitle">Edytuj samolot</h5>
+                <form method="post" asp-page-handler="EditPlaneModel" id="mainEditForm">
+                    <input type="hidden" name="EditModel.Id" id="editModelId" />
+                    <div class="mb-3">
+                        <label class="form-label">Nazwa linii</label>
+                        <input name="EditModel.Name" id="editModelName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Model</label>
+                        <input name="EditModel.Model" id="editModelModel" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Zasięg</label>
+                        <input name="EditModel.MaxDistance" id="editModelMaxDistance" type="number" class="form-control" required min="1" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Klasy</label>
+                        <div id="editedClassesContainer"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nowe klasy</label>
+                        <div id="newClassesContainer"></div>
+                        <button type="button" class="btn btn-secondary mb-2" onclick="addNewClass()">Dodaj nową klasę</button>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
-
 @section Scripts {
+    <script>
+        function editPlaneModel(id, name, model, maxDistance) {
+            document.getElementById("editTabItem").classList.remove("d-none");
+            document.getElementById("editTitle").innerText = "Edytuj samolot (Model)";
+
+            // Set form values
+            document.getElementById("editModelId").value = id;
+            document.getElementById("editModelName").value = name;
+            document.getElementById("editModelModel").value = model;
+            document.getElementById("editModelMaxDistance").value = maxDistance;
+
+            // Load classes
+            fetch(`/Admin/FleetManagement?handler=ClassesForBrand&brandId=${id}`)
+                .then(response => response.json())
+                .then(classes => {
+                    const container = document.getElementById("editedClassesContainer");
+                    container.innerHTML = classes.map((cls, i) => `
+                        <div class="mb-2 d-flex gap-2">
+                            <input type="hidden" name="EditModel.EditedClasses[${i}].Id" value="${cls.id}" />
+                            <input class="form-control w-50" name="EditModel.EditedClasses[${i}].Name" value="${cls.name}" required />
+                            <input class="form-control w-25" name="EditModel.EditedClasses[${i}].SeatsNumber" type="number" min="1" value="${cls.seatsNumber}" required />
+                        </div>
+                    `).join('');
+
+                    new bootstrap.Tab(document.querySelector('#edit-tab')).show();
+                });
+        }
+
+        let newClassIndex = 0;
+        function addNewClass() {
+            const container = document.getElementById("newClassesContainer");
+            const div = document.createElement("div");
+            div.classList.add("mb-2", "d-flex", "gap-2");
+
+            div.innerHTML = `
+                <input class="form-control w-50" name="EditModel.NewClasses[${newClassIndex}].Name" placeholder="Nazwa klasy" />
+                <input class="form-control w-25" name="EditModel.NewClasses[${newClassIndex}].SeatsNumber" type="number" min="1" value="1" placeholder="Ilość miejsc" />
+                <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">❌</button>
+            `;
+            container.appendChild(div);
+            newClassIndex++;
+        }
+
+        function submitEditForm() {
+            const editForm = document.getElementById('editModelForm');
+
+            // Collect all form data
+            const formData = new FormData(editForm);
+
+            // Create a new form for submission
+            const submitForm = document.getElementById('editPlaneModelForm');
+
+            // Clear any existing dynamic fields
+            while (submitForm.querySelector('[name^="EditModel.EditedClasses"]')) {
+                submitForm.querySelector('[name^="EditModel.EditedClasses"]').remove();
+            }
+
+            while (submitForm.querySelector('[name^="EditModel.NewClasses"]')) {
+                submitForm.querySelector('[name^="EditModel.NewClasses"]').remove();
+            }
+
+            // Set the basic model fields
+            document.getElementById('editModelId').value = formData.get('EditModel.Id');
+            document.getElementById('editModelName').value = formData.get('EditModel.Name');
+            document.getElementById('editModelModel').value = formData.get('EditModel.Model');
+            document.getElementById('editModelMaxDistance').value = formData.get('EditModel.MaxDistance');
+
+            // Add all edited classes
+            const editedClassFields = editForm.querySelectorAll('[name^="EditModel.EditedClasses"]');
+            editedClassFields.forEach(field => {
+                const clone = field.cloneNode(true);
+                submitForm.appendChild(clone);
+            });
+
+            // Add all new classes
+            const newClassFields = editForm.querySelectorAll('[name^="EditModel.NewClasses"]');
+            newClassFields.forEach(field => {
+                const clone = field.cloneNode(true);
+                submitForm.appendChild(clone);
+            });
+
+            // Submit the form
+            submitForm.action = '?handler=EditPlaneModel';
+            submitForm.submit();
+        }
+    </script>
+
     <script>
         let optionIndex = 0;
 
@@ -137,7 +335,6 @@
             const row = document.createElement("div");
             row.classList.add("option-row", "mb-2");
             row.innerHTML = `
-                
                 <input name="classes[${optionIndex}].Name" placeholder="Nazwa klasy" class="form-control d-inline-block w-25" />
                 <input name="classes[${optionIndex}].SeatsNumber" placeholder="Ilość miejsc" type="number" min="1" class="form-control d-inline-block w-25" />
                 <button type="button" class="btn btn-danger" onclick="removeOption(this)">❌</button>
@@ -156,7 +353,6 @@
             });
             optionIndex = rows.length;
         }
-
 
         function removeOption(button) {
             const row = button.parentElement;
