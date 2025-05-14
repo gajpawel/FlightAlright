@@ -15,5 +15,6 @@ namespace FlightAlright.Models
         public int? PositionId { get; set; }
         public Position? Position { get; set; }
         public bool? Status { get; set; } //1 - aktywny, 0 - zwolniony
+      
     }
 }

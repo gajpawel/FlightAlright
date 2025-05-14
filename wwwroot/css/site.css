@@ -1,53 +1,65 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
+    color: var(--bs-secondary-color);
+    text-align: end;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
+    text-align: start;
 }
+
+/* PASEK BOCZNY */
 
 .admin-menu {
-    width: 100px; /* Set the width of the menu */
+    min-width: 150px;
+    display: flex;
+    flex-direction: column;
 }
 
     .admin-menu a {
-    background-color: #258cfb; /* Grey background color */
-    color: white; /* Black text color */
-    display: block; /* Make the links appear below each other */
-    padding: 10px; /* Add padding */
-    text-decoration: none; /* Remove underline */
-    margin-bottom: 1px; /* Small gap between menu items */
+        background-color: #258cfb;
+        color: white;
+        display: block;
+        padding: 10px 15px;
+        text-decoration: none;
+        margin-bottom: 1px;
+        transition: background-color 0.3s ease;
     }
 
-        .admin-menu:hover {
-            background-color: #1c5a9c; /* Dark grey background on hover */
+        .admin-menu a:hover {
+            background-color: #1c5a9c;
+            color: white;
         }
 
         .admin-menu a.active {
-            background-color: pink; /* Add a green color to the "active/current" link */
+            background-color: pink;
             color: black;
         }

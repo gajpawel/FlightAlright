@@ -1,6 +1,7 @@
 ﻿@page
 @model FlightAlright.Pages.Admin.AirportManagementModel
 @{
+    var isEditing = Model.NewAirport.Id != 0;
 }
 
 <!-- _VerticalMenu.cshtml -->
@@ -22,26 +23,35 @@
         </div>
     </div>
     <div class="col bg-light">
-        <form method="post">
-            <h3>Dodaj nowe lotnisko</h3>
+        <form method="post" class="mb-5">
+            <h3>@(isEditing ? "Edytuj lotnisko" : "Dodaj nowe lotnisko")</h3>
+            <input type="hidden" asp-for="NewAirport.Id" />
             <div class="form-group">
-                <label asp-for="NewAirport.Code" class="form-label"></label>
-                <input asp-for="NewAirport.Code" class="form-control" maxlength="1" />
+                <label asp-for="NewAirport.Code" class="form-label">Kod Lotniska</label>
+                <input asp-for="NewAirport.Code" class="form-control" maxlength="3" />
             </div>
             <div class="form-group">
-                <label asp-for="NewAirport.Name" class="form-label"></label>
+                <label for="NewAirport_TimeZoneOffset" class="form-label">Strefa Czasowa</label>
+                <input asp-for="NewAirport.TimeZoneOffset" class="form-control" type="number" min="-12" max="14" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="NewAirport.Name" class="form-label">Nazwa</label>
                 <input asp-for="NewAirport.Name" class="form-control" />
             </div>
             <div class="form-group">
-                <label asp-for="NewAirport.City" class="form-label"></label>
+                <label asp-for="NewAirport.City" class="form-label">Miasto</label>
                 <input asp-for="NewAirport.City" class="form-control" />
             </div>
             <div class="form-group">
-                <label asp-for="NewAirport.Country" class="form-label"></label>
+                <label asp-for="NewAirport.Country" class="form-label">Państwo</label>
                 <input asp-for="NewAirport.Country" class="form-control" />
             </div>
-            <button type="submit" class="btn btn-primary">Zapisz</button>
+            <button type="submit" class="btn btn-primary mt-2">
+                @(isEditing ? "Zapisz zmiany" : "Dodaj lotnisko")
+            </button>
         </form>
+
         <h4 class="mt-5">Istniejące lotniska</h4>
 
         @if (Model.ExistingAirports.Any())
@@ -54,6 +64,7 @@
                         <th>Nazwa</th>
                         <th>Miasto</th>
                         <th>Kraj</th>
+                        <th>Akcje</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -65,6 +76,9 @@
                             <td>@airport.Name</td>
                             <td>@airport.City</td>
                             <td>@airport.Country</td>
+                            <td>
+                                <a asp-page="./AirportManagement" asp-route-EditId="@airport.Id" class="btn btn-sm btn-outline-primary">Edytuj</a>
+                            </td>
                         </tr>
                     }
                 </tbody>

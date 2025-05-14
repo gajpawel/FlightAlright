@@ -18,9 +18,20 @@ namespace FlightAlright.Pages.Admin
         public Airport NewAirport { get; set; } = new();
 
         public List<Airport> ExistingAirports { get; set; } = new();
+
+        [BindProperty(SupportsGet = true)]
+        public int? EditId { get; set; }
+
         public void OnGet()
         {
             ExistingAirports = _context.Airport.ToList();
+
+            if (EditId.HasValue)
+            {
+                var existing = _context.Airport.FirstOrDefault(a => a.Id == EditId.Value);
+                if (existing != null)
+                    NewAirport = existing;
+            }
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -31,12 +42,27 @@ namespace FlightAlright.Pages.Admin
                 return Page();
             }
 
-            _context.Airport.Add(NewAirport);
+            if (NewAirport.Id == 0)
+            {
+                
+                _context.Airport.Add(NewAirport);
+            }
+            else
+            {
+                
+                var existing = _context.Airport.Find(NewAirport.Id);
+                if (existing != null)
+                {
+                    existing.Code = NewAirport.Code;
+                    existing.Name = NewAirport.Name;
+                    existing.City = NewAirport.City;
+                    existing.Country = NewAirport.Country;
+                }
+            }
+
             await _context.SaveChangesAsync();
 
-            ExistingAirports = _context.Airport.ToList();
-
-            return RedirectToPage(); // Odœwie¿enie po dodaniu
+            return RedirectToPage(); // Odœwie¿ stronê
         }
     }
 }

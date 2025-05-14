@@ -1,16 +1,15 @@
 ﻿@page
-@model FlightAlright.Pages.Employees.EmployeeProfileModel
+@model FlightAlright.Pages.Employees.EmployeeFlightsModel
 @{
-    ViewData["Title"] = "Panel Pracownika";
+	ViewData["Title"] = "Twoja Lista Lotów";
 }
-
+<h2>@ViewData["Title"]</h2>
 @{
     string GetActiveClass(string pageName)
     {
         return ViewContext.RouteData.Values["Page"].ToString().EndsWith(pageName) ? "active" : "";
     }
 }
-
 <div class="row">
     <div class="col-md-auto">
         <div class="admin-menu">
@@ -21,15 +20,15 @@
     </div>
     <div class="col bg-light">
         <form method="post">
-            <h2>Witaj, @Model.EmployeeName!</h2>
+           
 
             @if (TempData["SuccessMessage"] != null)
             {
                 <div class="alert alert-success">@TempData["SuccessMessage"]</div>
             }
 
-            <p>To jest panel pracownika.</p>
-            <p>Możesz sprawdzić swój grafik oraz listę lotów.</p>
+            
+            <p>Tutaj znajdziesz pełną listę lotów w których uczestniczysz oraz sprawdzisz szczegóły na ich temat.</p>
         </form>
     </div>
 </div>
