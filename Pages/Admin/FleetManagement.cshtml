@@ -30,7 +30,7 @@
                     <div class="form-group">
                         <label for="selectbrand">Marka:</label>
                         <select id="selectbrand" class="form-control" asp-for="SelectedBrandId" asp-items="Model.brands" name="SelectedBrandId" onchange="this.form.submit()">
-                            <option value="">-- Select Brand --</option>
+                            <option value="">-- Wybierz markę --</option>
                         </select>
                     </div>
                 </form>
@@ -41,7 +41,7 @@
                             <div class="form-group">
                                 <label>Model:</label>
                                 <select class="form-control" asp-for="SelectedModelId" asp-items="Model.models">
-                                    <option value="">-- Select Model --</option>
+                                    <option value="">-- Wybierz model --</option>
                                 </select>
                             </div>
                         </div>
@@ -70,7 +70,7 @@
                     <label for="brand">Marka: </label>
                     <input id="brand" class="form-control" type="text" asp-for="NewBrandName" />
                     <select class="form-control" asp-for="SelectedBrandId" asp-items="Model.brands">
-                        <option value="">-- Or choose existing --</option>
+                        <option value="">-- Lub wybierz istniejącą --</option>
                     </select>
                 </div>
                 <div class="col">
@@ -82,16 +82,28 @@
                     <input id="range" class="form-control" type="number" value="100" min="0" asp-for="maxRange" />
                 </div>
                 <div class="col">
-                    <button id="add_plane_button" type="submit" class="btn btn-primary">Dodaj do wyboru</button>
+                    <div class="row">
+                        <button id="add_plane_button" type="submit" class="btn btn-primary">Dodaj do wyboru</button>
+                    </div>
+                    <div class="row">
+                        <button type="button" class="btn btn-primary mt-2" onclick="addOption()">Dodaj klasę</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="row" id="optionsContainer">
+                    <!--classes will be here-->
                 </div>
             </div>
         </form>
         <br />
+        <!--plane list-->
         <div class="row">
             <table class="table table-striped table-bordered">
                 <thead>
                     <tr>
 						<th>Id</th>
+                        <th>Status</th>
                         <th>Marka</th>
                         <th>Model</th>
                         <th>Zasięg</th>
@@ -102,6 +114,7 @@
                     {
                         <tr>
 							<td>@plane.Id</td>
+							<td width="40">@plane.Status</td>
                             <td>@plane.Brand.Name</td>
                             <td>@plane.Brand.Model</td>
                             <td>@plane.Brand.MaxDistance</td>
@@ -112,3 +125,43 @@
         </div>
     </div>
 </div>
+
+
+@section Scripts {
+    <script>
+        let optionIndex = 0;
+
+        function addOption() {
+            const container = document.getElementById("optionsContainer");
+
+            const row = document.createElement("div");
+            row.classList.add("option-row", "mb-2");
+            row.innerHTML = `
+                
+                <input name="classes[${optionIndex}].Name" placeholder="Nazwa klasy" class="form-control d-inline-block w-25" />
+                <input name="classes[${optionIndex}].SeatsNumber" placeholder="Ilość miejsc" type="number" min="1" class="form-control d-inline-block w-25" />
+                <button type="button" class="btn btn-danger" onclick="removeOption(this)">❌</button>
+            `;
+            container.appendChild(row);
+            optionIndex++;
+        }
+
+        function reindexOptions() {
+            const rows = document.querySelectorAll("#optionsContainer .option-row");
+            rows.forEach((row, i) => {
+                row.querySelectorAll("input").forEach(input => {
+                    if (input.name.includes(".Name")) input.name = `classes[${i}].Name`;
+                    if (input.name.includes(".SeatsNumber")) input.name = `classes[${i}].SeatsNumber`;
+                });
+            });
+            optionIndex = rows.length;
+        }
+
+
+        function removeOption(button) {
+            const row = button.parentElement;
+            row.remove();
+            reindexOptions();
+        }
+    </script>
+}

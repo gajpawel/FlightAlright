@@ -5,9 +5,16 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Humanizer;
+using Microsoft.Extensions.Options;
 
 namespace FlightAlright.Pages.Admin
 {
+    public class tempClass
+    {
+        public string? Name { get; set; }
+        public int SeatsNumber { get; set; }
+    }
+
     public class FleetManagementModel : PageModel
     {
         private readonly FlightAlrightContext _context;
@@ -34,6 +41,9 @@ namespace FlightAlright.Pages.Admin
 
         public List<SelectListItem> brands { get; set; }
         public List<SelectListItem> models { get; set; }
+
+        [BindProperty]
+        public List<tempClass> classes { get; set; } = new();
 
         public FleetManagementModel(FlightAlrightContext context)
         {
@@ -82,7 +92,8 @@ namespace FlightAlright.Pages.Admin
                 var plane = new Plane
                 {
                     BrandId = model.Id,
-                    Brand = model
+                    Brand = model,
+                    Status = 'D'
                 };
                 _context.Plane.Add(plane);
             }
@@ -98,6 +109,7 @@ namespace FlightAlright.Pages.Admin
         {
             Brand newPlane;
 
+            // plane validation
             if (!string.IsNullOrWhiteSpace(NewBrandName))
             {
                 newPlane = new Brand { Name = NewBrandName, Model = NewModelName, MaxDistance = maxRange};
@@ -118,7 +130,42 @@ namespace FlightAlright.Pages.Admin
                 }
             }
 
+            // class validation
+            if (classes == null || !classes.Any())
+            {
+                ModelState.AddModelError("", "At least one class option is required.");
+                LoadBrands();
+                LoadModels(SelectedBrandId);
+                return Page();
+            }
+
+            foreach (var option in classes)
+            {
+                if (string.IsNullOrWhiteSpace(option.Name) || option.SeatsNumber <= 0)
+                {
+                    ModelState.AddModelError("", "All class options must have a name and seat count > 0.");
+                    LoadBrands();
+                    LoadModels(SelectedBrandId);
+                    return Page();
+                }
+            }
+
             _context.Brand.Add(newPlane);
+
+            _context.SaveChanges();
+
+            // save classes
+            foreach (var option in classes)
+            {
+                var classEntry = new Class
+                {
+                    Name = option.Name,
+                    SeatsNumber = option.SeatsNumber,
+                    BrandId = newPlane.Id
+                };
+                _context.Class.Add(classEntry);
+            }
+            classes.Clear();
 
             _context.SaveChanges();
 
