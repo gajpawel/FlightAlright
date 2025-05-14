@@ -14,10 +14,11 @@
 <div class="row">
     <div class="col-md-auto">
         <div class="admin-menu">
-            <a asp-page="./AdminProfile" class="@GetActiveClass("/AdminProfile")">Account</a>
+            <a asp-page="./AdminProfile" class="@GetActiveClass("/AdminProfile")">Konto</a>
             <a asp-page="./PersonelManagement" class="@GetActiveClass("/PersonelManagement")">Personel</a>
-            <a asp-page="./AirportManagement" class="@GetActiveClass("/AirportManagement")">Airports</a>
-            <a asp-page="./FleetManagement" class="@GetActiveClass("/FleetManagement")">Fleet</a>
+            <a asp-page="./AirportManagement" class="@GetActiveClass("/AirportManagement")">Lotniska</a>
+            <a asp-page="./FleetManagement" class="@GetActiveClass("/FleetManagement")">Flota</a>
+            <a asp-page="./FlightManagement" class="@GetActiveClass("/FlightManagement")">Loty</a>
         </div>
     </div>
 
@@ -25,7 +26,9 @@
         <h2>Zarządzanie personelem</h2>
         <p>W tym panelu możesz dodawać nowych pracowników oraz przeglądać istniejących.</p>
 
+        <a class="btn btn-danger mb-3" asp-page="/Admin/AddAdmin">➕ Dodaj nowego administratora</a><br />
         <a class="btn btn-primary mb-3" asp-page="/Employees/Create">➕ Dodaj nowego pracownika</a><br />
-        <a class="btn btn-secondary" asp-page="/Employees/Index">👥 Zobacz listę pracowników</a>
+        <a class="btn btn-secondary mb-3" asp-page="/Employees/Index">👥 Zobacz listę pracowników</a><br />
+        <a class="btn btn-outline-dark" asp-page="/Admin/PositionManagement">🏷️ Zarządzaj stanowiskami</a>
     </div>
 </div>

@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using FlightAlright.Data;
 using FlightAlright.Models;
 
@@ -13,9 +13,9 @@ namespace FlightAlright.Pages.Employees
 {
     public class EditModel : PageModel
     {
-        private readonly FlightAlright.Data.FlightAlrightContext _context;
+        private readonly FlightAlrightContext _context;
 
-        public EditModel(FlightAlright.Data.FlightAlrightContext context)
+        public EditModel(FlightAlrightContext context)
         {
             _context = context;
         }
@@ -23,57 +23,71 @@ namespace FlightAlright.Pages.Employees
         [BindProperty]
         public Employee Employee { get; set; } = default!;
 
+        [BindProperty]
+        public string Login { get; set; } = string.Empty;
+
+        [BindProperty]
+        public string? Password { get; set; }  // nullable = poprawne
+
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var employee =  await _context.Employee.FirstOrDefaultAsync(m => m.Id == id);
-            if (employee == null)
-            {
+            Employee = await _context.Employee
+                .Include(e => e.Account)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (Employee == null)
                 return NotFound();
-            }
-            Employee = employee;
-           ViewData["AccountId"] = new SelectList(_context.Set<Account>(), "Id", "Id");
-           ViewData["PositionId"] = new SelectList(_context.Set<Position>(), "Id", "Id");
+
+            Login = Employee.Account?.Login ?? "";
+
+            ViewData["PositionId"] = new SelectList(_context.Position, "Id", "Name", Employee.PositionId);
             return Page();
         }
 
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more information, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
-            {
                 return Page();
-            }
 
-            _context.Attach(Employee).State = EntityState.Modified;
+            var employee = await _context.Employee
+                .Include(e => e.Account)
+                .FirstOrDefaultAsync(e => e.Id == Employee.Id);
 
-            try
+            if (employee == null)
+                return NotFound();
+
+            employee.PositionId = Employee.PositionId;
+
+            if (employee.Account != null)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!EmployeeExists(Employee.Id))
+                employee.Account.Login = Login;
+
+                if (!string.IsNullOrWhiteSpace(Password))
                 {
-                    return NotFound();
+                    if (!IsValidPassword(Password))
+                    {
+                        ModelState.AddModelError("Password", "Hasło musi mieć min. 8 znaków, zawierać małą i wielką literę oraz znak specjalny.");
+                        ViewData["PositionId"] = new SelectList(_context.Position, "Id", "Name", Employee.PositionId);
+                        return Page();
+                    }
+
+                    var hasher = new PasswordHasher<string>();
+                    employee.Account.Password = hasher.HashPassword(null, Password);
                 }
-                else
-                {
-                    throw;
-                }
+
+                _context.Account.Update(employee.Account);
             }
 
+            await _context.SaveChangesAsync();
             return RedirectToPage("./Index");
         }
 
-        private bool EmployeeExists(int id)
+        private bool IsValidPassword(string password)
         {
-            return _context.Employee.Any(e => e.Id == id);
+            return Regex.IsMatch(password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$");
         }
     }
 }

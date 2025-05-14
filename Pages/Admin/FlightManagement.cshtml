@@ -1,0 +1,68 @@
+﻿@page
+@model FlightAlright.Pages.Admin.FlightManagementModel
+@{
+    ViewData["Title"] = "Zarządzanie lotami";
+}
+
+@{
+    string GetActiveClass(string pageName)
+    {
+        return ViewContext.RouteData.Values["Page"].ToString().EndsWith(pageName) ? "active" : "";
+    }
+}
+
+<div class="row">
+    <div class="col-md-auto">
+        <div class="admin-menu">
+            <a asp-page="./AdminProfile" class="@GetActiveClass("/AdminProfile")">Konto</a>
+            <a asp-page="./PersonelManagement" class="@GetActiveClass("/PersonelManagement")">Personel</a>
+            <a asp-page="./AirportManagement" class="@GetActiveClass("/AirportManagement")">Lotniska</a>
+            <a asp-page="./FleetManagement" class="@GetActiveClass("/FleetManagement")">Flota</a>
+            <a asp-page="./FlightManagement" class="@GetActiveClass("/FlightManagement")">Loty</a>
+        </div>
+    </div>
+
+    <div class="col bg-light p-4">
+        <h2>Zarządzanie lotami</h2>
+
+        <div class="mb-3">
+            <a asp-page="./AddFlight" class="btn btn-primary">Dodaj nowy lot</a>
+        </div>
+
+        @if (Model.Flights != null && Model.Flights.Any())
+        {
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Data odlotu</th>
+                        <th>Lotnisko wylotu</th>
+                        <th>Data przylotu</th>
+                        <th>Lotnisko przylotu</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var flight in Model.Flights)
+                    {
+                        <tr>
+                            <td>@flight.DepartureDate.Value.AddHours(flight.DepartureAirport.TimeZoneOffset.Value)</td>
+                            <td>@flight.DepartureAirport?.Name</td>
+                            <td>@flight.ArrivalDate.Value.AddHours(flight.ArrivalAirport.TimeZoneOffset.Value)</td>
+                            <td>@flight.ArrivalAirport?.Name</td>
+                            <td>
+                                <a asp-page="./FlightDetails" asp-route-id="@flight.Id" class="btn btn-info btn-sm">Szczegóły</a>
+                                <a asp-page="./EditFlight" asp-route-id="@flight.Id" class="btn btn-warning btn-sm">Edytuj</a>
+                                <a asp-page="./PriceManagement" asp-route-flightId="@flight.Id" class="btn btn-secondary btn-sm">Pule biletów</a>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>Brak dostępnych lotów.</p>
+        }
+    </div>
+</div>

@@ -3,6 +3,7 @@ using FlightAlright.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Text.RegularExpressions;
 
 namespace FlightAlright.Pages
 {
@@ -44,6 +45,12 @@ namespace FlightAlright.Pages
                 return Page();
             }
 
+            if (!IsPasswordValid(Account.Password))
+            {
+                ModelState.AddModelError("Account.Password", "Has³o musi mieæ min. 8 znaków, zawieraæ ma³¹ i wielk¹ literê oraz znak specjalny.");
+                return Page();
+            }
+
             // Sprawdzenie, czy login ju¿ istnieje w tabeli Account
             if (_context.Account.Any(a => a.Login == Account.Login))
             {
@@ -72,6 +79,13 @@ namespace FlightAlright.Pages
 
             TempData["SuccessMessage"] = "Rejestracja zakoñczona sukcesem! Mo¿esz siê zalogowaæ.";
             return RedirectToPage("/Login", new { login = Account.Login });
+        }
+
+        private bool IsPasswordValid(string password)
+        {
+            // Minimum 8 znaków, 1 ma³a litera, 1 wielka litera, 1 znak specjalny
+            var regex = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$");
+            return regex.IsMatch(password);
         }
     }
 }

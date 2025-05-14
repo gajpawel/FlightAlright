@@ -12,6 +12,7 @@ namespace FlightAlright.Pages.Admin
 
         public string AdminName { get; set; } = string.Empty;
 
+
         public AdminProfileModel(FlightAlrightContext context)
         {
             _context = context;

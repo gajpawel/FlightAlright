@@ -1,0 +1,63 @@
+﻿@page
+@model FlightAlright.Pages.Admin.PositionManagementModel
+@{
+    ViewData["Title"] = "Zarządzanie stanowiskami";
+}
+
+<h2>@(Model.Position.Id == 0 ? "Dodaj nowe stanowisko" : "Edytuj stanowisko")</h2>
+
+<form method="post">
+    <input type="hidden" asp-for="Position.Id" />
+    <div class="form-group mb-3">
+        <label asp-for="Position.Name" class="form-label">Nazwa stanowiska</label>
+        <input asp-for="Position.Name" class="form-control" />
+        <span asp-validation-for="Position.Name" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-success">
+        @(Model.Position.Id == 0 ? "Dodaj" : "Zapisz zmiany")
+    </button>
+    <a asp-page="./PersonelManagement" class="btn btn-secondary ms-2">↩ Powrót</a>
+</form>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger mt-3">@TempData["ErrorMessage"]</div>
+}
+
+@if (Model.Positions.Any())
+{
+    <h3 class="mt-4">Istniejące stanowiska</h3>
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Nazwa</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model.Positions)
+            {
+                <tr>
+                    <td>@p.Name</td>
+                    <td>
+                        <a asp-page="./PositionManagement" asp-route-EditId="@p.Id" class="btn btn-sm btn-outline-primary">
+                            ✏️ Edytuj
+                        </a>
+                        <form method="post" asp-page-handler="Delete" asp-route-id="@p.Id" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger ms-1"
+                                    onclick="return confirm('Czy na pewno chcesz usunąć stanowisko @p.Name?');">
+                                🗑️ Usuń
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

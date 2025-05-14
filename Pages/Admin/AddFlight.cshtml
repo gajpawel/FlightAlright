@@ -1,0 +1,66 @@
+﻿@page
+@model FlightAlright.Pages.Admin.AddFlightModel
+@{
+    ViewData["Title"] = "Dodaj nowe połączenie lotnicze";
+}
+
+    <h2>Dodaj nowe połączenie lotnicze</h2>
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}
+    <form method="post">
+    <div class="mb-3">
+        <label asp-for="Flight.DepartureAirportId" class="form-label">Lotnisko startowe</label>
+        <select asp-for="Flight.DepartureAirportId" class="form-select" asp-items="Model.AirportSelectList" required>
+            <option value="">-- Wybierz lotnisko --</option>
+        </select>
+    </div>
+
+        <div class="mb-3">
+            <label asp-for="Flight.DepartureDate" class="form-label">Data i czas odlotu (zgodny z lokalną strefą czasową)</label>
+        <input asp-for="Flight.DepartureDate" class="form-control" type="datetime-local" required/>
+        </div>
+
+    <div class="mb-3">
+        <label asp-for="Flight.ArrivalAirportId" class="form-label">Lotnisko docelowe</label>
+        <select asp-for="Flight.ArrivalAirportId" class="form-select" asp-items="Model.AirportSelectList" required>
+            <option value="">-- Wybierz lotnisko --</option>
+        </select>
+    </div>
+
+        <div class="mb-3">
+        <label asp-for="Flight.ArrivalDate" class="form-label">Data i czas przylotu (zgodny z lokalną strefą czasową)</label>
+        <input asp-for="Flight.ArrivalDate" class="form-control" type="datetime-local" required />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Flight.PlaneId" class="form-label">Samolot</label>
+        <select asp-for="Flight.PlaneId" class="form-select" asp-items="Model.PlaneSelectList" required>
+                <option value="">-- Wybierz samolot --</option>
+            </select>
+        </div>
+
+    <div class="mb-3">
+        <label class="form-label">Pracownicy obsługujący lot</label>
+        <div>
+            @foreach (var employee in Model.EmployeeItems)
+            {
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="SelectedEmployeeIds" value="@employee.Value" id="emp_@employee.Value" />
+                    <label class="form-check-label" for="emp_@employee.Value">
+                        @employee.Text
+                    </label>
+                </div>
+            }
+        </div>
+    </div>
+
+
+        <button type="submit" class="btn btn-primary">Dodaj połączenie</button>
+    </form>
