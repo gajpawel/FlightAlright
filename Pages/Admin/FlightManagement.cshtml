@@ -52,6 +52,7 @@
                             <td>
                                 <a asp-page="./FlightDetails" asp-route-id="@flight.Id" class="btn btn-info btn-sm">Szczegóły</a>
                                 <a asp-page="./EditFlight" asp-route-id="@flight.Id" class="btn btn-warning btn-sm">Edytuj</a>
+                                <a asp-page="./CrewManagement" asp-route-flightId="@flight.Id" class="btn btn-secondary btn-sm">Załoga</a>
                                 <a asp-page="./PriceManagement" asp-route-flightId="@flight.Id" class="btn btn-secondary btn-sm">Pule biletów</a>
                             </td>
                         </tr>

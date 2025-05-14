@@ -25,6 +25,9 @@
                         @if (Context.Session?.GetString("UserType") == "Administrator")
                         {
                             <li class="nav-item">
+                                <a class="nav-link @(Context.Request.Path == "/Employees/EmployeeProfile" ? "active" : "")" asp-page="/Employees/EmployeeProfile">Panel pracownika</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link @(Context.Request.Path == "/Admin/AdminProfile" ? "active" : "")" asp-page="/Admin/AdminProfile">Panel administratora</a>
                             </li>
                         }

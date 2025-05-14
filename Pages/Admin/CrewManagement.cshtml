@@ -1,0 +1,24 @@
+﻿@page
+@model FlightAlright.Pages.Admin.CrewManagementModel
+@{
+    ViewData["Title"] = "Załoga samolotu";
+}
+<form method="post">
+    <div class="mb-3">
+        <label class="form-label">Pracownicy obsługujący lot</label>
+        <div>
+            @foreach (var employee in Model.EmployeeItems)
+            {
+                var isChecked = employee.Selected ? "checked" : "";
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="SelectedEmployeeIds" value="@employee.Value" id="emp_@employee.Value" @isChecked />
+                    <label class="form-check-label" for="emp_@employee.Value">
+                        @employee.Text
+                    </label>
+                </div>
+            }
+        </div>
+    </div>
+    <input type="hidden" name="currentFlightId" value="@Model.currentFlightId" />
+    <button type="submit" class="btn btn-primary">Dalej</button>
+</form>
