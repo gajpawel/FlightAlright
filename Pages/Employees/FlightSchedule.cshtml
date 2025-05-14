@@ -33,22 +33,22 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var flight in Model.Flights)
+            @foreach (var flight in Model.SchedulePositions)
             {
                 <tr>
-                    <td>@flight.PlaneId</td>
-                    <td>@flight.DepartureAirport</td>
-                    <td>@flight.ArrivalAirport</td>
-                    <td>@flight.ArrivalDate</td>
+                    <td>@flight.Item1.Id</td>
+                    <td>@flight.Item1.DepartureAirport?.Name</td>
+                    <td>@flight.Item1.ArrivalAirport?.Name</td>
+                    <td>@flight.Item1.ArrivalDate</td>
                     <td>
                         <ul>
-                            @foreach (var member in flight.Crew)
+                            @foreach (var member in flight.Item2)
                             {
                                 <li>@member.Employee?.Account?.Name @member.Employee?.Account?.Surname</li>
-
                             }
                         </ul>
                     </td>
+                    
                 </tr>
             }
         </tbody>

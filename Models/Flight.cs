@@ -19,7 +19,6 @@ namespace FlightAlright.Models
         [ForeignKey("Plane")]
         public int? PlaneId { get; set; }
         public Plane? Plane { get; set; }
-        public ICollection<Crew>? Crew { get; set; }
 
         public bool? Status { get; set; } //1 - aktywny, 0 - nieaktywny
     }

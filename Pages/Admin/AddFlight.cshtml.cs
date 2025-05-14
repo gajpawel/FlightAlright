@@ -19,13 +19,8 @@ namespace FlightAlright.Pages.Admin
         [BindProperty]
         public Flight Flight { get; set; }
 
-        [BindProperty]
-        public List<int> SelectedEmployeeIds { get; set; }
-
         public SelectList AirportSelectList { get; set; }
         public SelectList PlaneSelectList { get; set; }
-        public List<SelectListItem> EmployeeItems { get; set; }
-
 
         public void OnGet()
         {
@@ -47,18 +42,6 @@ namespace FlightAlright.Pages.Admin
             .Include(e => e.Account)
             .Include(e => e.Position)
             .ToList();
-
-            // Przygotuj listê do wyœwietlenia w formacie: "Imiê Nazwisko (Stanowisko)"
-            EmployeeItems = _context.Employee
-                .Include(e => e.Account)
-                .Include(e => e.Position)
-                .ToList()
-                .Select(e => new SelectListItem
-                {
-                    Value = e.Id.ToString(),
-                    Text = $"{e.Account.Name} {e.Account.Surname} ({e.Position.Name})"
-                }).ToList();
-
         }
 
         public IActionResult OnPost()
@@ -84,21 +67,7 @@ namespace FlightAlright.Pages.Admin
             _context.Flight.Add(Flight);
             _context.SaveChanges();
 
-            if (SelectedEmployeeIds != null && SelectedEmployeeIds.Any())
-            {
-                foreach (var empId in SelectedEmployeeIds)
-                {
-                    _context.Crew.Add(new Crew
-                    {
-                        FlightId = Flight.Id,
-                        EmployeeId = empId
-                    });
-                }
-
-                _context.SaveChanges();
-            }
-
-            return RedirectToPage("/Admin/PriceManagement", new { flightId = Flight.Id });
+            return RedirectToPage("/Admin/CrewManagement", new { flightId = Flight.Id });
         }
     }
 }

@@ -28,7 +28,7 @@ namespace FlightAlright.Pages.Employees
                 .Include(a => a.Role)
                 .FirstOrDefault(a => a.Id == accountId);
 
-            if (account == null || account.Role?.Name != "Employee")
+            if (account == null || (account.Role?.Name != "Employee" && account.Role?.Name != "Administrator"))
                 return RedirectToPage("/AccessDenied");
 
             EmployeeName = $"{account.Name}";
