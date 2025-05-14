@@ -67,9 +67,9 @@ namespace FlightAlright.Pages.Employees
 
                 if (!string.IsNullOrWhiteSpace(Password))
                 {
-                    if (!IsValidPassword(Password))
+                    if (!IsPasswordValid(Password))
                     {
-                        ModelState.AddModelError("Password", "Hasło musi mieć min. 8 znaków, zawierać małą i wielką literę oraz znak specjalny.");
+                        ModelState.AddModelError("Password", "Hasło musi mieć min. 8 znaków, zawierać małą i wielką literę, cyfrę oraz znak specjalny.");
                         ViewData["PositionId"] = new SelectList(_context.Position, "Id", "Name", Employee.PositionId);
                         return Page();
                     }
@@ -85,9 +85,10 @@ namespace FlightAlright.Pages.Employees
             return RedirectToPage("./Index");
         }
 
-        private bool IsValidPassword(string password)
+        private bool IsPasswordValid(string password)
         {
-            return Regex.IsMatch(password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$");
+            var regex = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$");
+            return regex.IsMatch(password);
         }
     }
 }

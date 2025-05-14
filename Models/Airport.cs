@@ -6,7 +6,7 @@ namespace FlightAlright.Models
     {
         [Key]
         public int Id { get; set; }
-        public string Code { get; set; } = string.Empty; //Trzyznakowy kod
+        public string? Code { get; set; } = string.Empty; //Trzyznakowy kod
         public string? Name { get; set; }
         public string? City { get; set; }
         public string? Country { get; set; }
