@@ -1,3 +1,4 @@
+using System.Numerics;
 using FlightAlright.Data;
 using FlightAlright.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -16,24 +17,30 @@ namespace FlightAlright.Pages.Admin
             _context = context;
         }
 
-        [BindProperty(SupportsGet = true)]
-        public int currentFlightId { get; set; }
-
         [BindProperty]
         public List<int?> SelectedEmployeeIds { get; set; } = new();
         public List<SelectListItem> EmployeeItems { get; set; }
         public List<Crew> existingCrew { get; set; }
 
+        public SelectList PlaneSelectList { get; set; }
+        [BindProperty]
+        public Flight Flight { get; set; }
+        [BindProperty]
+        public int currentFlightId { get; set; }
+        [BindProperty]
+        public int? PlaneId { get; set; }
+
 
         public void OnGet(int flightId)
         {
             currentFlightId = flightId;
+            Flight = _context.Flight.FirstOrDefault(f => f.Id == flightId);
             // Pobierz ID pracowników przypisanych do danego lotu
             SelectedEmployeeIds = _context.Crew
-                .Where(c => c.FlightId == currentFlightId)
+                .Where(c => c.FlightId == Flight.Id)
                 .Select(c => c.EmployeeId)
                 .ToList();
-
+            PlaneId = Flight.PlaneId;
             // Przygotuj listê wszystkich pracowników z oznaczeniem "Selected"
             EmployeeItems = _context.Employee
                 .Include(e => e.Account)
@@ -45,24 +52,47 @@ namespace FlightAlright.Pages.Admin
                     Text = $"{e.Account.Name} {e.Account.Surname} ({e.Position.Name})",
                     Selected = SelectedEmployeeIds.Contains(e.Id)
                 }).ToList();
+
+            var planes = _context.Plane
+                .Include(p => p.Brand)
+                .ToList();
+
+            var plane = planes.Select(p => new SelectListItem
+            {
+                Value = p.Id.ToString(),
+                Text = $"{p.Brand.Name} {p.Brand.Model} ({p.Id})"
+            }).ToList();
+
+            PlaneSelectList = new SelectList(plane, "Value", "Text");
         }
 
         public IActionResult OnPost()
         {
+            Flight = _context.Flight.FirstOrDefault(f => f.Id == currentFlightId);
+            Flight.PlaneId = PlaneId;
+            _context.SaveChanges();
+            // Usuñ dotychczasowe przypisania za³ogi dla lotu
+            var existingCrew = _context.Crew.Where(c => c.FlightId == Flight.Id);
+            _context.Crew.RemoveRange(existingCrew);
+            _context.SaveChanges();
+
+            // Dodaj nowe przypisania tylko dla zaznaczonych pracowników
             if (SelectedEmployeeIds != null && SelectedEmployeeIds.Any())
             {
-                foreach (var empId in SelectedEmployeeIds)
+                foreach (var empId in SelectedEmployeeIds.Distinct())
                 {
                     _context.Crew.Add(new Crew
                     {
-                        FlightId = currentFlightId,
+                        FlightId = Flight.Id,
                         EmployeeId = empId
                     });
                 }
 
                 _context.SaveChanges();
             }
-            return RedirectToPage("/Admin/PriceManagement", new { flightId = currentFlightId });
+
+            return RedirectToPage("/Admin/PriceManagement", new { flightId = Flight.Id });
         }
+
     }
 }

@@ -39,7 +39,7 @@
                     <td>@flight.Item1.Id</td>
                     <td>@flight.Item1.DepartureAirport?.Name</td>
                     <td>@flight.Item1.ArrivalAirport?.Name</td>
-                    <td>@flight.Item1.ArrivalDate</td>
+                    <td>@flight.Item1.ArrivalDate?.AddHours(@flight.Item1.ArrivalAirport.TimeZoneOffset.Value)</td>
                     <td>
                         <ul>
                             @foreach (var member in flight.Item2)

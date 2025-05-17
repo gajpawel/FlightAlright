@@ -26,8 +26,9 @@
         <h2>Zarządzanie lotami</h2>
 
         <div class="mb-3">
-            <a asp-page="./AddFlight" class="btn btn-primary">Dodaj nowy lot</a>
+            <a asp-page="./AddFlight" asp-route-flightId="0" class="btn btn-primary">Dodaj nowy lot</a>
         </div>
+
 
         @if (Model.Flights != null && Model.Flights.Any())
         {
@@ -51,9 +52,7 @@
                             <td>@flight.ArrivalAirport?.Name</td>
                             <td>
                                 <a asp-page="./FlightDetails" asp-route-id="@flight.Id" class="btn btn-info btn-sm">Szczegóły</a>
-                                <a asp-page="./EditFlight" asp-route-id="@flight.Id" class="btn btn-warning btn-sm">Edytuj</a>
-                                <a asp-page="./CrewManagement" asp-route-flightId="@flight.Id" class="btn btn-secondary btn-sm">Załoga</a>
-                                <a asp-page="./PriceManagement" asp-route-flightId="@flight.Id" class="btn btn-secondary btn-sm">Pule biletów</a>
+                                <a asp-page="./AddFlight" asp-route-flightId="@flight.Id" class="btn btn-warning btn-sm">Edytuj</a>
                             </td>
                         </tr>
                     }
