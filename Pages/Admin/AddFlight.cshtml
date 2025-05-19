@@ -23,13 +23,8 @@
     </div>
 
     <div class="mb-3">
-        <label class="form-label">
-            Data i czas odlotu
-            @(Model.Flight?.DepartureAirport?.TimeZoneOffset != null
-                ? $"(zgodny z lokalną strefą czasową: UTC{(Model.Flight.DepartureAirport.TimeZoneOffset >= 0 ? "+" : "")}{Model.Flight.DepartureAirport.TimeZoneOffset})"
-                : "(strefa czasowa nieznana)")
-        </label>
-        <input asp-for="Flight.DepartureDate" class="form-control" type="datetime-local" required />
+        <label asp-for="departureDate" class="form-label">Data i czas odlotu (zgodny z lokalną strefą czasową)</label>
+        <input asp-for="departureDate" class="form-control" type="datetime-local" required />
     </div>
 
 
@@ -41,13 +36,8 @@
     </div>
 
     <div class="mb-3">
-        <label class="form-label">
-            Data i czas odlotu
-            @(Model.Flight?.ArrivalAirport?.TimeZoneOffset != null
-                ? $"(zgodny z lokalną strefą czasową: UTC{(Model.Flight.ArrivalAirport.TimeZoneOffset >= 0 ? "+" : "")}{Model.Flight.ArrivalAirport.TimeZoneOffset})"
-                : "(strefa czasowa nieznana)")
-        </label>
-        <input asp-for="Flight.ArrivalDate" class="form-control" type="datetime-local" required />
+        <label asp-for="arrivalDate"class="form-label">Data i czas przylotu (zgodny z lokalną strefą czasową)</label>
+        <input asp-for="arrivalDate"class="form-control" type="datetime-local" required />
     </div>
 
     <input type="hidden" name="newFlightId" value="@Model.newFlightId" />

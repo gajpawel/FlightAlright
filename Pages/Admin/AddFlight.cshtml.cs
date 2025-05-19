@@ -23,6 +23,11 @@ namespace FlightAlright.Pages.Admin
         [BindProperty]
         public int newFlightId { get; set; }
 
+        [BindProperty]
+        public DateTime? departureDate { get; set; }
+        [BindProperty]
+        public DateTime? arrivalDate { get; set; }
+
         public void OnGet(int flightId)
         {
             newFlightId = flightId;
@@ -34,6 +39,11 @@ namespace FlightAlright.Pages.Admin
             .Include(e => e.Account)
             .Include(e => e.Position)
             .ToList();
+            if (flightId != 0)
+            {
+                departureDate = Flight.DepartureDate?.AddHours(Flight.DepartureAirport.TimeZoneOffset.Value);
+                arrivalDate = Flight.ArrivalDate?.AddHours(Flight.ArrivalAirport.TimeZoneOffset.Value);
+            }
         }
 
         public IActionResult OnPost()
@@ -47,8 +57,8 @@ namespace FlightAlright.Pages.Admin
             Flight.DepartureAirport = _context.Airport.FirstOrDefault(a => a.Id == Flight.DepartureAirportId);
             Flight.ArrivalAirport = _context.Airport.FirstOrDefault(a => a.Id == Flight.ArrivalAirportId);
 
-            Flight.DepartureDate = Flight.DepartureDate?.AddHours(-Flight.DepartureAirport.TimeZoneOffset.Value);
-            Flight.ArrivalDate = Flight.ArrivalDate?.AddHours(-Flight.ArrivalAirport.TimeZoneOffset.Value);
+            Flight.DepartureDate = departureDate?.AddHours(-Flight.DepartureAirport.TimeZoneOffset.Value);
+            Flight.ArrivalDate = arrivalDate?.AddHours(-Flight.ArrivalAirport.TimeZoneOffset.Value);
             Flight.Status = true;
 
             if (Flight.DepartureDate >= Flight.ArrivalDate ||

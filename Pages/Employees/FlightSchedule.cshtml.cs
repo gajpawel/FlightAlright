@@ -19,6 +19,7 @@ namespace FlightAlright.Pages.Employees
         
         public async Task OnGetAsync()
         {
+            UpdateFlightStatus(); //zmieñ status nieaktualnych lotów, ¿eby nie by³y wyœwietlane
             //var userEmail = User.Identity?.Name;
             var accountId = HttpContext.Session.GetInt32("AccountId");
 
@@ -50,6 +51,27 @@ namespace FlightAlright.Pages.Employees
                 SchedulePositions.Add(temp);
             }
         }
+        public void UpdateFlightStatus()
+        {
+            var now = DateTime.UtcNow;
 
+            var flights = _context.Flight
+                .Include(f => f.ArrivalAirport)
+                .Where(f => f.Status == true)
+                .ToList();
+
+            foreach (var flight in flights)
+            {
+                var adjustedArrivalTime = flight.ArrivalDate;
+
+                if (adjustedArrivalTime < now)
+                {
+                    flight.Status = false;
+                }
+            }
+
+            _context.SaveChanges();
+
+        }
     }
 }
