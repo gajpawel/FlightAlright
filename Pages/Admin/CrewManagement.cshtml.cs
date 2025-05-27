@@ -85,7 +85,7 @@ namespace FlightAlright.Pages.Admin
             // Pobierz dostêpne samoloty (czyli nie na liœcie zajêtych)
             var availablePlanes = _context.Plane
                 .Include(p => p.Brand)
-                .Where(p => !unavailablePlaneIds.Contains(p.Id))
+                .Where(p => !unavailablePlaneIds.Contains(p.Id) && p.Status != 'N')
                 .ToList();
 
             // Przygotuj listê SelectListItem
@@ -103,12 +103,27 @@ namespace FlightAlright.Pages.Admin
         {
             Flight = _context.Flight.FirstOrDefault(f => f.Id == currentFlightId);
             Flight.PlaneId = PlaneId;
-            if (PlaneId != oldPlaneId)
+            var oldPlane = _context.Plane.FirstOrDefault(p => p.Id == PlaneId);
+            var newPlane = _context.Plane.FirstOrDefault(p => p.Id == oldPlaneId);
+            if (newPlane?.BrandId != oldPlane?.BrandId)
             {
-                var pricesToDelete = _context.Price
+                var pricesToCancel = _context.Price.Include(p => p.Flight)
                     .Where(p => p.Flight.PlaneId == oldPlaneId && p.FlightId == Flight.Id);
-
-                _context.Price.RemoveRange(pricesToDelete);
+                foreach (var p in pricesToCancel)
+                {
+                    var debug = p.Id;
+                    var ticketsToCancel = _context.Ticket
+                        .Where(t => t.PriceId == p.Id && t.AccountId!=null).ToList();
+                    foreach (var t in ticketsToCancel)
+                    {
+                        t.Status = 'A'; //uniewa¿nij zakupione bilety
+                    }
+                    var ticketsToDelete = _context.Ticket
+                        .Where(t => t.PriceId == p.Id && t.AccountId == null).ToList();
+                    _context.RemoveRange(ticketsToDelete); //usuñ puste bilety
+                    p.Status = false;
+                    _context.SaveChanges();
+                }
                 _context.SaveChanges();
             }
             _context.SaveChanges();

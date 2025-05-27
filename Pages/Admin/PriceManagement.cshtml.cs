@@ -68,7 +68,8 @@ namespace FlightAlright.Pages.Admin
             {
                 FlightId = Flight.Id,
                 ClassId = SelectedClassId,
-                CurrentPrice = Price
+                CurrentPrice = Price,
+                Status = true
             };
 
             await LoadExistingPricesAsync();
@@ -83,7 +84,21 @@ namespace FlightAlright.Pages.Admin
             }
             _context.Price.Add(newPrice);
             await _context.SaveChangesAsync();
-
+            var seatsNumber = await _context.Class
+                .Where(c => c.Id == newPrice.ClassId)
+                .Select(c => c.SeatsNumber)
+                .FirstOrDefaultAsync();
+            for (int i = 1; i <= seatsNumber; i++)
+            {
+                var newEmptyTicket = new Ticket
+                {
+                    PriceId = newPrice.Id,
+                    Status = 'D',
+                    Seating = i
+                };
+                _context.Ticket.Add(newEmptyTicket); //dodanie pustego biletu
+            }
+            _context.SaveChanges();
             return RedirectToPage(new { flightId = Flight.Id });
         }
 
@@ -102,7 +117,7 @@ namespace FlightAlright.Pages.Admin
         {
             ExistingPrices = await _context.Price
                 .Include(p => p.Class)
-                .Where(p => p.FlightId == Flight.Id)
+                .Where(p => p.FlightId == Flight.Id && p.Status == true)
                 .ToListAsync();
         }
     }

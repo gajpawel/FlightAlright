@@ -20,6 +20,12 @@
             }
         </div>
     </div>
+    @if (Model.PlaneId != null)
+    {
+        <div class="alert alert-warning" role="alert">
+            <strong>Uwaga!</strong> Zmiana modelu samolotu spowoduje anulowanie wszystkich zakupionych biletów i usunięcie pul sprzedaży.
+        </div>
+    }
     <div class="mb-3">
         <label asp-for="@Model.PlaneId" class="form-label">Samolot</label>
         <select asp-for="@Model.PlaneId" class="form-select" asp-items="Model.PlaneSelectList" required>
