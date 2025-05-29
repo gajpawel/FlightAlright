@@ -1,91 +1,83 @@
 ﻿@page
 @model FlightAlright.Pages.Admin.AddAdminModel
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Dodaj administratora";
+    var currentId = HttpContextAccessor.HttpContext?.Session.GetInt32("AccountId");
 }
 
 <h2>Dodaj administratora</h2>
 
-@if (!string.IsNullOrEmpty(Model.SuccessMessage))
-{
-    <div class="alert alert-success">@Model.SuccessMessage</div>
-}
-@if (!string.IsNullOrEmpty(Model.ErrorMessage))
-{
-    <div class="alert alert-danger">@Model.ErrorMessage</div>
-}
-
 <form method="post">
-    <div class="form-group">
-        <label>Wybierz tryb dodawania:</label><br />
-        <input type="radio" name="Mode" value="new" checked onchange="toggleMode()"> Nowe konto<br />
-        <input type="radio" name="Mode" value="existing" onchange="toggleMode()"> Istniejące konto
+    <div class="mb-2">
+        <label><input type="radio" name="Mode" value="new" @(Model.Mode == "new" ? "checked" : "") onchange="this.form.submit();" /> Nowe konto</label>
+        <label><input type="radio" name="Mode" value="existing" @(Model.Mode == "existing" ? "checked" : "") onchange="this.form.submit();" /> Istniejące konto</label>
     </div>
 
-    <div id="newAccountSection">
-        <div class="form-group">
-            <label asp-for="Account.Name">Imię</label>
-            <input asp-for="Account.Name" class="form-control" />
-        </div>
-        <div class="form-group">
-            <label asp-for="Account.Surname">Nazwisko</label>
-            <input asp-for="Account.Surname" class="form-control" />
-        </div>
-        <div class="form-group">
-            <label asp-for="Account.Login">Login</label>
-            <input asp-for="Account.Login" class="form-control" />
-        </div>
-        <div class="form-group">
-            <label asp-for="Password">Hasło</label>
-            <input asp-for="Password" type="password" class="form-control" />
-        </div>
-    </div>
-
-    <div id="existingAccountSection" style="display: none;">
-        <div class="form-group mt-3">
-            <label>Wybierz istniejące konto klienta:</label>
+    @if (Model.Mode == "new")
+    {
+        <div><label>Imię:</label><input asp-for="Account.Name" class="form-control" /></div>
+        <div><label>Nazwisko:</label><input asp-for="Account.Surname" class="form-control" /></div>
+        <div><label>Login:</label><input asp-for="Account.Login" class="form-control" /></div>
+        <div><label>Hasło:</label><input asp-for="Password" type="password" class="form-control" /></div>
+    }
+    else if (Model.Mode == "existing")
+    {
+        <div>
+            <label>Wybierz konto:</label>
             <select asp-for="SelectedAccountId" asp-items="Model.AccountList" class="form-control"></select>
         </div>
-    </div>
+    }
 
-    <button type="submit" class="btn btn-primary mt-3">Zapisz</button>
-    <a asp-page="./AdminProfile" class="btn btn-secondary mt-3 ms-2">Anuluj</a>
+    <br />
+    <button type="submit" class="btn btn-primary">Zapisz</button>
+    <a href="/Admin/AddAdmin" class="btn btn-secondary">Anuluj</a>
 </form>
 
-@if (Model.AdminList.Any())
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
 {
-    <h3 class="mt-5">Lista aktualnych administratorów</h3>
-    <table class="table table-bordered mt-3">
-        <thead class="table-dark">
-            <tr>
-                <th>Imię</th>
-                <th>Nazwisko</th>
-                <th>Login</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var admin in Model.AdminList)
-            {
-                <tr>
-                    <td>@admin.Name</td>
-                    <td>@admin.Surname</td>
-                    <td>@admin.Login</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <p class="text-danger mt-2">@Model.ErrorMessage</p>
 }
-else
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
 {
-    <p class="text-muted mt-4">Brak zarejestrowanych administratorów.</p>
+    <p class="text-success mt-2">@Model.SuccessMessage</p>
 }
 
-@section Scripts {
-    <script>
-        function toggleMode() {
-            var selected = document.querySelector('input[name="Mode"]:checked').value;
-            document.getElementById("newAccountSection").style.display = selected === "new" ? "block" : "none";
-            document.getElementById("existingAccountSection").style.display = selected === "existing" ? "block" : "none";
+<hr />
+
+<h3>Lista aktualnych administratorów</h3>
+<table class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Imię</th>
+            <th>Nazwisko</th>
+            <th>Login</th>
+            <th>Akcje</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var admin in Model.AdminList)
+        {
+            <tr>
+                <td>@admin.Name</td>
+                <td>@admin.Surname</td>
+                <td>@admin.Login</td>
+                <td>
+                    @if (admin.Id != currentId)
+                    {
+                        <form method="post" asp-page-handler="RemoveAdmin" style="display:inline;">
+                            <input type="hidden" name="adminId" value="@admin.Id" />
+                            <input type="password" name="passwordToConfirm" placeholder="Hasło admina" class="form-control d-inline w-auto" required />
+                            <button type="submit" class="btn btn-danger btn-sm">Usuń</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="text-muted">(ty)</span>
+                    }
+                </td>
+            </tr>
         }
-    </script>
-}
+    </tbody>
+</table>
