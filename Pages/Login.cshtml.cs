@@ -67,7 +67,7 @@ namespace FlightAlright.Pages
             return user.RoleId switch
             {
                 1 => RedirectToPage("/Clients/ClientProfile"),      // Klient
-                2 => RedirectToPage("/Employees/EmployeeProfile"),    // Pracownik
+                2 => RedirectToPage("/Employees/FlightSchedule"),    // Pracownik
                 3 => RedirectToPage("/Admin/AdminProfile"),// Admin
                 _ => RedirectToPage("/Index")
             };

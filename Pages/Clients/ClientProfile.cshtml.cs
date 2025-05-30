@@ -11,6 +11,7 @@ namespace FlightAlright.Pages.Clients
         private readonly FlightAlrightContext _context;
 
         public string ClientName { get; set; } = string.Empty;
+        public Account account {  get; set; }
 
         public ClientProfileModel(FlightAlrightContext context)
         {
@@ -24,11 +25,11 @@ namespace FlightAlright.Pages.Clients
             if (accountId == null)
                 return RedirectToPage("/Login");
 
-            var account = _context.Account
+            account = _context.Account
                 .Include(a => a.Role)
                 .FirstOrDefault(a => a.Id == accountId);
 
-            if (account == null || account.Role?.Name != "Client")
+            if (account == null)
                 return RedirectToPage("/AccessDenied"); // lub do innej strony
 
             ClientName = $"{account.Name}";

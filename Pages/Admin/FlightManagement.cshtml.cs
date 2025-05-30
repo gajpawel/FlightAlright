@@ -44,6 +44,18 @@ namespace FlightAlright.Pages.Admin
                 if (adjustedArrivalTime < now)
                 {
                     flight.Status = false;
+                    var oldFightPrices = _context.Price.Where(p => p.FlightId == flight.Id).ToList();
+                    foreach (var price in oldFightPrices)
+                    {
+                        var oldTickets = _context.Ticket.Where(t => t.PriceId == price.Id).ToList();
+                        foreach(var ticket in oldTickets)
+                        {
+                            if (ticket.Status == 'A')
+                                _context.Remove(ticket);
+                            else if (ticket.Status == 'K')
+                                ticket.Status = 'N';
+                        }
+                    }
                 }
             }
 
