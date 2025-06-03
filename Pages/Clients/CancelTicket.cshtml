@@ -1,0 +1,40 @@
+﻿@page "{ticketId:int}"
+@model FlightAlright.Pages.Clients.CancelTicketModel
+@{
+    ViewData["Title"] = "Anuluj bilet";
+}
+<h2>Anuluj zakupiony bilet</h2>
+@if(Model.days < 20)
+{
+    <div>Pozostały czas do odlotu wynosi mniej niż 20 dni. Na twoje konto zostanie zwrócone 80% ceny biletu (@(Model.ticket.TicketPrice * 0.8) zł).</div>
+    <br >
+}
+else
+{
+    <div>Na twoje konto zostanie zwrócona pełna kwota.</div><br>
+}
+<div class="mb-4">
+    <h4>Dane biletu</h4>
+    <p><strong>Data odlotu:</strong> @Model.ticket.Price.Flight.DepartureDate.Value.AddHours(Model.departureOffset)</p>
+    <p><strong>Lotnisko wylotu:</strong> @Model.ticket.Price.Flight.DepartureAirport?.Name</p>
+    <p><strong>Data przylotu:</strong> @Model.ticket.Price.Flight.ArrivalDate.Value.AddHours(Model.arrivalOffset)</p>
+    <p><strong>Lotnisko przylotu:</strong> @Model.ticket.Price.Flight.ArrivalAirport?.Name</p>
+    <p><strong>Cena:</strong> @Model.ticket.TicketPrice zł</p>
+    <p><strong>Numer miejsca siedzącego:</strong> @Model.ticket.Seating</p>
+    <p><strong>Dodatkowy bagaż:</strong> @if (Model.ticket.ExtraLuggage.Value)
+        {
+            <div>Tak</div>
+        }
+        else
+        {
+            <div>Nie</div>
+        }
+    </p>
+</div>
+<h3>Czy na pewno chcesz zwrócić bilet?</h3><br>
+<form method="post">
+    <button type="submit" class="btn btn-danger">Tak</button>
+    <a asp-page="/Clients/ClientProfile" class="btn btn-success">Nie</a>
+    <input type="hidden" asp-for="ticketPrice" />
+    <input type="hidden" asp-for="ticketId" />
+</form>
