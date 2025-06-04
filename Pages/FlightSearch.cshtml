@@ -1,0 +1,29 @@
+﻿@page
+@model FlightAlright.Pages.FlightSearchModel
+@{
+	ViewData["Title"] = "Wyszukiwarka lotów Flight Alright";
+}
+
+<div class="justify-content-center">
+    <div class="row">
+        <h1>Wyszukiwarka lotów Flight Alright</h1>
+    </div>
+    <div class="row">
+        <form method="post">
+            <div class="row">
+                <div class="col">
+                    <label>Miejsce odlotu:</label>
+                </div>
+                <div class="col">
+                    <label>Miejsce przylotu</label>
+                </div>
+                <div class="col">
+                    <label>Data odlotu:</label>
+                </div>
+            </div>
+            <div class="row">
+                <button type="submit" class="btn btn-primary">Wyszukaj</button>
+            </div>
+        </form>
+    </div>
+</div>
