@@ -1,0 +1,43 @@
+﻿@page
+@model FlightAlright.Pages.Clients.BuyTicketModel
+@{
+    ViewData["Title"] = "Kup bilet";
+}
+
+<h2>Kup bilet na lot:</h2>
+<p>
+    <strong>Skąd:</strong> @Model.Flight.DepartureAirport?.Name <br />
+    <strong>Dokąd:</strong> @Model.Flight.ArrivalAirport?.Name <br />
+    <strong>Data wylotu:</strong> @Model.Flight.DepartureDate?.AddHours(Model.Flight.DepartureAirport.TimeZoneOffset ?? 0).ToString("g") <br />
+    <strong>Data przylotu:</strong> @Model.Flight.ArrivalDate?.AddHours(Model.Flight.ArrivalAirport.TimeZoneOffset ?? 0).ToString("g") <br />
+</p>
+
+<form method="post">
+    <input type="hidden" asp-for="FlightId" />
+
+    <div class="form-group">
+        <label for="SelectedClassId">Wybierz klasę:</label>
+        <select asp-for="SelectedClassId" class="form-control" asp-items="Model.ClassOptions">
+            <option value="">-- Wybierz klasę --</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="SeatCount">Liczba miejsc:</label>
+        <input type="number" asp-for="SeatCount" class="form-control" min="1" value="1" />
+    </div>
+
+    <div class="form-group">
+        <label>
+            <input type="checkbox" asp-for="ExtraLuggage" /> Dodatkowy bagaż
+        </label>
+    </div>
+
+    <button type="submit" class="btn btn-success">Potwierdź zakup</button>
+    <a asp-page="/Clients/ClientProfile" class="btn btn-secondary">Anuluj</a>
+</form>
+
+@if (!ModelState.IsValid)
+{
+    <div class="alert alert-danger">Wystąpiły błędy w formularzu.</div>
+}
