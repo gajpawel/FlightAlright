@@ -1,91 +1,115 @@
 ﻿@page
 @model FlightAlright.Pages.Admin.AddAdminModel
 @{
-    ViewData["Title"] = "Dodaj administratora";
+    ViewData["Title"] = "Dodawanie administratora";
 }
 
-<h2>Dodaj administratora</h2>
+<h2 class="mb-4">Dodawanie administratora</h2>
 
-@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+<a asp-page="/Admin/PersonelManagement" class="btn btn-secondary mb-3">
+    ← Powrót do panelu
+</a>
+
+@if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
 {
     <div class="alert alert-success">@Model.SuccessMessage</div>
 }
-@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
 {
     <div class="alert alert-danger">@Model.ErrorMessage</div>
 }
 
-<form method="post">
-    <div class="form-group">
-        <label>Wybierz tryb dodawania:</label><br />
-        <input type="radio" name="Mode" value="new" checked onchange="toggleMode()"> Nowe konto<br />
-        <input type="radio" name="Mode" value="existing" onchange="toggleMode()"> Istniejące konto
-    </div>
-
-    <div id="newAccountSection">
-        <div class="form-group">
-            <label asp-for="Account.Name">Imię</label>
-            <input asp-for="Account.Name" class="form-control" />
+<form method="post" class="border p-3 rounded bg-light">
+    <div class="mb-3">
+        <label class="form-label fw-bold">Tryb</label><br />
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" asp-for="Mode" value="new"
+                   checked="@((Model.Mode ?? "new") == "new")">
+            <label class="form-check-label">Nowe konto</label>
         </div>
-        <div class="form-group">
-            <label asp-for="Account.Surname">Nazwisko</label>
-            <input asp-for="Account.Surname" class="form-control" />
-        </div>
-        <div class="form-group">
-            <label asp-for="Account.Login">Login</label>
-            <input asp-for="Account.Login" class="form-control" />
-        </div>
-        <div class="form-group">
-            <label asp-for="Password">Hasło</label>
-            <input asp-for="Password" type="password" class="form-control" />
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" asp-for="Mode" value="existing"
+                   checked="@((Model.Mode ?? "new") == "existing")">
+            <label class="form-check-label">Istniejące konto</label>
         </div>
     </div>
 
-    <div id="existingAccountSection" style="display: none;">
-        <div class="form-group mt-3">
-            <label>Wybierz istniejące konto klienta:</label>
-            <select asp-for="SelectedAccountId" asp-items="Model.AccountList" class="form-control"></select>
+    <div id="newAccountSection" class="@(Model.Mode == "existing" ? "d-none" : "")">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Imię*</label>
+                <input class="form-control" asp-for="Name" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Nazwisko*</label>
+                <input class="form-control" asp-for="Surname" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Login*</label>
+                <input class="form-control" asp-for="Login" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Hasło*</label>
+                <input type="password" class="form-control" asp-for="Password" />
+            </div>
         </div>
     </div>
 
-    <button type="submit" class="btn btn-primary mt-3">Zapisz</button>
-    <a asp-page="./AdminProfile" class="btn btn-secondary mt-3 ms-2">Anuluj</a>
+    <div id="existingAccountSection" class="@(Model.Mode == "existing" ? "" : "d-none")">
+        <div class="mb-3">
+            <label class="form-label">Wybierz konto*</label>
+            <select class="form-select" asp-for="SelectedAccountId" asp-items="Model.AccountList">
+                <option value="">-- wybierz --</option>
+            </select>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Zapisz</button>
 </form>
 
-@if (Model.AdminList.Any())
-{
-    <h3 class="mt-5">Lista aktualnych administratorów</h3>
-    <table class="table table-bordered mt-3">
-        <thead class="table-dark">
+<hr />
+
+<h4>Aktualni administratorzy</h4>
+
+<table class="table table-sm table-striped">
+    <thead>
+        <tr>
+            <th>Login</th>
+            <th>Imię i nazwisko</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var admin in Model.AdminList)
+        {
             <tr>
-                <th>Imię</th>
-                <th>Nazwisko</th>
-                <th>Login</th>
+                <td>@admin.Login</td>
+                <td>@admin.Name @admin.Surname</td>
+                <td>
+                    <form method="post" asp-page-handler="RemoveAdmin" class="d-flex gap-2">
+                        <input type="hidden" name="adminId" value="@admin.Id" />
+                        <input type="password" name="passwordToConfirm"
+                               class="form-control form-control-sm"
+                               placeholder="Hasło admina" required />
+                        <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Na pewno odebrać uprawnienia?');">
+                            Odebranie roli
+                        </button>
+                    </form>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach (var admin in Model.AdminList)
-            {
-                <tr>
-                    <td>@admin.Name</td>
-                    <td>@admin.Surname</td>
-                    <td>@admin.Login</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <p class="text-muted mt-4">Brak zarejestrowanych administratorów.</p>
-}
+        }
+    </tbody>
+</table>
 
 @section Scripts {
     <script>
-        function toggleMode() {
-            var selected = document.querySelector('input[name="Mode"]:checked').value;
-            document.getElementById("newAccountSection").style.display = selected === "new" ? "block" : "none";
-            document.getElementById("existingAccountSection").style.display = selected === "existing" ? "block" : "none";
-        }
+        document.querySelectorAll('input[name="Mode"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                const isNew = radio.value === 'new' && radio.checked;
+                document.getElementById('newAccountSection').classList.toggle('d-none', !isNew);
+                document.getElementById('existingAccountSection').classList.toggle('d-none',  isNew);
+            });
+        });
     </script>
 }

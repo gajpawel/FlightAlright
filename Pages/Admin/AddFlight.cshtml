@@ -22,10 +22,11 @@
         </select>
     </div>
 
-        <div class="mb-3">
-            <label asp-for="Flight.DepartureDate" class="form-label">Data i czas odlotu (zgodny z lokalną strefą czasową)</label>
-        <input asp-for="Flight.DepartureDate" class="form-control" type="datetime-local" required/>
-        </div>
+    <div class="mb-3">
+        <label asp-for="departureDate" class="form-label">Data i czas odlotu (zgodny z lokalną strefą czasową)</label>
+        <input asp-for="departureDate" class="form-control" type="datetime-local" required />
+    </div>
+
 
     <div class="mb-3">
         <label asp-for="Flight.ArrivalAirportId" class="form-label">Lotnisko docelowe</label>
@@ -34,18 +35,11 @@
         </select>
     </div>
 
-        <div class="mb-3">
-        <label asp-for="Flight.ArrivalDate" class="form-label">Data i czas przylotu (zgodny z lokalną strefą czasową)</label>
-        <input asp-for="Flight.ArrivalDate" class="form-control" type="datetime-local" required />
-        </div>
+    <div class="mb-3">
+        <label asp-for="arrivalDate"class="form-label">Data i czas przylotu (zgodny z lokalną strefą czasową)</label>
+        <input asp-for="arrivalDate"class="form-control" type="datetime-local" required />
+    </div>
 
-        <div class="mb-3">
-            <label asp-for="Flight.PlaneId" class="form-label">Samolot</label>
-        <select asp-for="Flight.PlaneId" class="form-select" asp-items="Model.PlaneSelectList" required>
-                <option value="">-- Wybierz samolot --</option>
-            </select>
-        </div>
-
-
+    <input type="hidden" name="newFlightId" value="@Model.newFlightId" />
         <button type="submit" class="btn btn-primary">Dalej</button>
     </form>

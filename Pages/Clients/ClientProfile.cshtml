@@ -4,15 +4,86 @@
     ViewData["Title"] = "Panel Klienta";
 }
 
-<h2>Witaj, @Model.ClientName!</h2>
-
 @if (TempData["SuccessMessage"] != null)
 {
     <div class="alert alert-success">@TempData["SuccessMessage"]</div>
 }
 
-<p>To jest Twój panel klienta. W przyszłości znajdziesz tu swoje bilety, historię lotów i inne funkcje.</p>
 
-<div class="mt-3">
-    <a asp-page="/Clients/EditProfile" class="btn btn-warning">Edytuj profil</a>
+
+@if (Model.account.RoleId == 1)
+{
+    <h2>Witaj, @Model.ClientName!</h2>
+    <p>To jest Twój panel klienta.</p>
+    <div class="mt-3">
+        <a asp-page="/Clients/EditProfile" class="btn btn-warning">Edytuj profil</a>
+    </div>
+    <br>
+}
+<h3>Moje bilety</h3>
+<br />
+
+<div class="row">
+    <div class="col-md-4">
+        <h4>Aktywne</h4>
+        @if (Model.ActiveTickets.Count == 0)
+        {
+            <div>Brak biletów</div>
+        }
+        @foreach (var ticket in Model.ActiveTickets)
+        {
+            <div class="card mb-3 p-2">
+                <p><strong>Lot:</strong> @ticket.Price?.Flight?.DepartureAirport?.Name → @ticket.Price?.Flight?.ArrivalAirport?.Name</p>
+                <p><strong>Data wylotu:</strong> @ticket.Price?.Flight?.DepartureDate?.AddHours(ticket.Price.Flight.DepartureAirport.TimeZoneOffset.Value).ToString("g")</p>
+                <p><strong>Data przylotu:</strong> @ticket.Price?.Flight?.ArrivalDate?.AddHours(ticket.Price.Flight.ArrivalAirport.TimeZoneOffset.Value).ToString("g")</p>
+                <p><strong>Klasa:</strong> @ticket.Price?.Class?.Name</p>
+                <p><strong>Miejsce:</strong> @ticket.Seating</p>
+                <p><strong>Dodatkowy bagaż:</strong> @(ticket.ExtraLuggage == true ? "Tak" : "Nie")</p>
+                <p><strong>Cena:</strong> @ticket.TicketPrice zł</p>
+
+                <a asp-page="/Clients/CancelTicket" asp-route-ticketId="@ticket.Id" class="btn btn-danger">Anuluj</a>
+            </div>
+        }
+
+    </div>
+
+    <div class="col-md-4">
+        <h4>Anulowane</h4>
+        @if (Model.CancelledTickets.Count == 0)
+        { 
+            <div> Brak biletów </div>
+        }
+        @foreach (var ticket in Model.CancelledTickets)
+        {
+            <div class="card mb-3 p-2 bg-light">
+                <p><strong>Lot:</strong> @ticket.Price?.Flight?.DepartureAirport?.Name → @ticket.Price?.Flight?.ArrivalAirport?.Name</p>
+                <p><strong>Data wylotu:</strong> @ticket.Price?.Flight?.DepartureDate?.AddHours(ticket.Price.Flight.DepartureAirport.TimeZoneOffset.Value).ToString("g")</p>
+                <p><strong>Data przylotu:</strong> @ticket.Price?.Flight?.ArrivalDate?.AddHours(ticket.Price.Flight.ArrivalAirport.TimeZoneOffset.Value).ToString("g")</p>
+                <p><strong>Klasa:</strong> @ticket.Price?.Class?.Name</p>
+                <p><strong>Miejsce:</strong> @ticket.Seating</p>
+                <p><strong>Dodatkowy bagaż:</strong> @(ticket.ExtraLuggage == true ? "Tak" : "Nie")</p>
+                <p><strong>Cena:</strong> @ticket.TicketPrice zł</p>
+            </div>
+        }
+    </div>
+
+    <div class="col-md-4">
+        <h4>Zrealizowane</h4>
+        @if (Model.PastTickets.Count == 0)
+        {
+            <div> Brak biletów </div>
+        }
+        @foreach (var ticket in Model.PastTickets)
+        {
+            <div class="card mb-3 p-2 border-secondary">
+                <p><strong>Lot:</strong> @ticket.Price?.Flight?.DepartureAirport?.Name → @ticket.Price?.Flight?.ArrivalAirport?.Name</p>
+                <p><strong>Data wylotu:</strong> @ticket.Price?.Flight?.DepartureDate?.AddHours(ticket.Price.Flight.DepartureAirport.TimeZoneOffset.Value).ToString("g")</p>
+                <p><strong>Data przylotu:</strong> @ticket.Price?.Flight?.ArrivalDate?.AddHours(ticket.Price.Flight.ArrivalAirport.TimeZoneOffset.Value).ToString("g")</p>
+                <p><strong>Klasa:</strong> @ticket.Price?.Class?.Name</p>
+                <p><strong>Miejsce:</strong> @ticket.Seating</p>
+                <p><strong>Dodatkowy bagaż:</strong> @(ticket.ExtraLuggage == true ? "Tak" : "Nie")</p>
+                <p><strong>Cena:</strong> @ticket.TicketPrice zł</p>
+            </div>
+        }
+    </div>
 </div>

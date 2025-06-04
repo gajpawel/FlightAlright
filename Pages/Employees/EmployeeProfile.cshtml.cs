@@ -19,6 +19,7 @@ namespace FlightAlright.Pages.Employees
 
         public IActionResult OnGet()
         {
+            //Strona najpewniej do usuniêcia
             var accountId = HttpContext.Session.GetInt32("AccountId");
 
             if (accountId == null)

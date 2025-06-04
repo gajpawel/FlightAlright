@@ -17,57 +17,88 @@ namespace FlightAlright.Pages.Admin
         }
 
         [BindProperty]
-        public Flight Flight { get; set; }
+        public Flight Flight { get; set; } = new Flight();
 
         public SelectList AirportSelectList { get; set; }
-        public SelectList PlaneSelectList { get; set; }
+        [BindProperty]
+        public int newFlightId { get; set; }
 
-        public void OnGet()
+        [BindProperty]
+        public DateTime? departureDate { get; set; }
+        [BindProperty]
+        public DateTime? arrivalDate { get; set; }
+
+        public void OnGet(int flightId)
         {
+            newFlightId = flightId;
+            Flight = _context.Flight.FirstOrDefault(f => f.Id == newFlightId);
+
             AirportSelectList = new SelectList(_context.Airport.ToList(), "Id", "Name");
-
-            var planes = _context.Plane
-                .Include(p => p.Brand)
-                .ToList();
-
-            var plane = planes.Select(p => new SelectListItem
-            {
-                Value = p.Id.ToString(),
-                Text = $"{p.Brand.Name} {p.Brand.Model} ({p.Id})"
-            }).ToList();
-
-            PlaneSelectList = new SelectList(plane, "Value", "Text");
 
             var employees = _context.Employee
             .Include(e => e.Account)
             .Include(e => e.Position)
             .ToList();
+            if (flightId != 0)
+            {
+                departureDate = Flight.DepartureDate?.AddHours(Flight.DepartureAirport.TimeZoneOffset.Value);
+                arrivalDate = Flight.ArrivalDate?.AddHours(Flight.ArrivalAirport.TimeZoneOffset.Value);
+            }
         }
 
         public IActionResult OnPost()
         {
             if (!ModelState.IsValid)
             {
-                OnGet(); // reload lists
+                OnGet(newFlightId); // reload lists
                 return Page();
             }
-            Flight.DepartureAirport = _context.Airport.FirstOrDefault(A => A.Id == Flight.DepartureAirportId);
-            Flight.ArrivalAirport = _context.Airport.FirstOrDefault(A => A.Id == Flight.ArrivalAirportId);
-            Flight.DepartureDate = Flight.DepartureDate?.AddHours(-Flight.DepartureAirport.TimeZoneOffset.Value);
-            Flight.ArrivalDate = Flight.ArrivalDate?.AddHours(-Flight.ArrivalAirport.TimeZoneOffset.Value);
+
+            Flight.DepartureAirport = _context.Airport.FirstOrDefault(a => a.Id == Flight.DepartureAirportId);
+            Flight.ArrivalAirport = _context.Airport.FirstOrDefault(a => a.Id == Flight.ArrivalAirportId);
+
+            Flight.DepartureDate = departureDate?.AddHours(-Flight.DepartureAirport.TimeZoneOffset.Value);
+            Flight.ArrivalDate = arrivalDate?.AddHours(-Flight.ArrivalAirport.TimeZoneOffset.Value);
             Flight.Status = true;
 
-            if (Flight.DepartureDate >= Flight.ArrivalDate || Flight.ArrivalDate < DateTime.UtcNow || Flight.DepartureDate < DateTime.UtcNow || Flight.ArrivalAirportId==Flight.DepartureAirportId)
+            if (Flight.DepartureDate >= Flight.ArrivalDate ||
+                Flight.ArrivalDate < DateTime.UtcNow ||
+                Flight.DepartureDate < DateTime.UtcNow ||
+                Flight.ArrivalAirportId == Flight.DepartureAirportId)
             {
                 ModelState.AddModelError(string.Empty, "SprawdŸ poprawnoœæ wpisywanych danych");
-                OnGet();
+                OnGet(newFlightId);
                 return Page();
             }
 
-            _context.Flight.Add(Flight);
-            _context.SaveChanges();
+            if (newFlightId == 0)
+            {
+                // Nowy lot
+                _context.Flight.Add(Flight);
+                _context.SaveChanges(); // zapisujemy, ¿eby uzyskaæ wygenerowane Flight.Id
+                newFlightId = Flight.Id;
+            }
+            else
+            {
+                // Aktualizacja istniej¹cego lotu
+                var existingFlight = _context.Flight.FirstOrDefault(f => f.Id == newFlightId);
+                if (existingFlight == null)
+                {
+                    return NotFound();
+                }
 
-            return RedirectToPage("/Admin/CrewManagement", new { flightId = Flight.Id });
+                // aktualizuj dane
+                existingFlight.DepartureAirportId = Flight.DepartureAirportId;
+                existingFlight.ArrivalAirportId = Flight.ArrivalAirportId;
+                existingFlight.DepartureDate = Flight.DepartureDate;
+                existingFlight.ArrivalDate = Flight.ArrivalDate;
+                existingFlight.Status = Flight.Status;
+
+                _context.Update(existingFlight);
+                _context.SaveChanges();
+            }
+
+            return RedirectToPage("/Admin/CrewManagement", new { flightId = newFlightId });
         }
     }
 }

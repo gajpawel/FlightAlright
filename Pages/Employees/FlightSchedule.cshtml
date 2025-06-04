@@ -4,22 +4,26 @@
     ViewData["Title"] = "Twój grafik lotów";
 }
 
-<h2>@ViewData["Title"]</h2>
-@{
-    string GetActiveClass(string pageName)
-    {
-        return ViewContext.RouteData.Values["Page"].ToString().EndsWith(pageName) ? "active" : "";
-    }
-}
-<div class="row">
-    <div class="col-md-auto">
-        <div class="admin-menu">
-            <a asp-page="./EmployeeProfile" class="@GetActiveClass("/EmployeeProfile")">Konto</a>
-            <a asp-page="./FlightSchedule" class="@GetActiveClass("/FlightSchedule")">Grafik</a>
-            <a asp-page="./EmployeeFlights" class="@GetActiveClass("/EmployeeFlights")">Loty</a>
-        </div>
-    </div>
-    <div class="col bg-light">
+<div class="col bg-light">
+    <form method="post">
+        <h2>Witaj, @Model.Account.Name!</h2>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+        }
+
+        <p>To jest panel pracownika.</p>
+        @if (Model.Account.RoleId == 2)
+        {
+            <div class="mt-3">
+                <a asp-page="/Employees/EditProfile" class="btn btn-warning">Edytuj profil</a>
+            </div>
+            <br>
+        }
+    </form>
+</div>
+<h3>@ViewData["Title"]</h3>
 @if (Model.Flights.Any())
 {
     <table class="table table-bordered">
@@ -39,7 +43,7 @@
                     <td>@flight.Item1.Id</td>
                     <td>@flight.Item1.DepartureAirport?.Name</td>
                     <td>@flight.Item1.ArrivalAirport?.Name</td>
-                    <td>@flight.Item1.ArrivalDate</td>
+                    <td>@flight.Item1.ArrivalDate?.AddHours(@flight.Item1.ArrivalAirport.TimeZoneOffset.Value)</td>
                     <td>
                         <ul>
                             @foreach (var member in flight.Item2)

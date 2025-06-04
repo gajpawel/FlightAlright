@@ -1,16 +1,12 @@
 ﻿@page
 @model FlightAlright.Pages.Admin.AdminProfileModel
 @{
-	ViewData["Title"] = "Panel Administratora";
+    ViewData["Title"] = "Panel Administratora";
 }
 
-
-<!-- _VerticalMenu.cshtml -->
 @{
-    string GetActiveClass(string pageName)
-    {
-        return ViewContext.RouteData.Values["Page"].ToString().EndsWith(pageName) ? "active" : "";
-    }
+    string GetActiveClass(string pageName) =>
+        ViewContext.RouteData.Values["Page"]!.ToString().EndsWith(pageName) ? "active" : "";
 }
 
 <div class="row">
@@ -21,14 +17,15 @@
             <a asp-page="./AirportManagement" class="@GetActiveClass("/AirportManagement")">Lotniska</a>
             <a asp-page="./FleetManagement" class="@GetActiveClass("/FleetManagement")">Flota</a>
             <a asp-page="./FlightManagement" class="@GetActiveClass("/FlightManagement")">Loty</a>
+            <a asp-page="/Admin/Reports/Reports" class="@GetActiveClass("/Reports/Reports")">Raporty</a>
         </div>
     </div>
+
     <div class="col bg-light">
         <form method="post">
             <h2>Witaj, @Model.AdminName!</h2>
 
-
-            @if (TempData["SuccessMessage"] != null)
+            @if (TempData["SuccessMessage"] is not null)
             {
                 <div class="alert alert-success">@TempData["SuccessMessage"]</div>
             }
@@ -39,8 +36,19 @@
                 <a asp-page="/Admin/EditProfile" class="btn btn-warning">Edytuj profil</a>
             </div>
 
-            <!-- additional content here-->
-            <p>Możesz nadać uprawnienia administratora innym użytkownikom.</p>
         </form>
     </div>
 </div>
+
+<style>
+    .admin-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+        .admin-menu a.active {
+            font-weight: 600;
+            text-decoration: underline;
+        }
+</style>

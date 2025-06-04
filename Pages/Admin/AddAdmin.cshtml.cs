@@ -4,134 +4,185 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlightAlright.Pages.Admin
 {
     public class AddAdminModel : PageModel
     {
         private readonly FlightAlrightContext _context;
+        public AddAdminModel(FlightAlrightContext context) => _context = context;
 
-        public AddAdminModel(FlightAlrightContext context)
-        {
-            _context = context;
-        }
+        [BindProperty, Required, StringLength(100)]
+        public string Login { get; set; } = string.Empty;
 
-        [BindProperty]
-        public Account Account { get; set; } = new();
 
-        [BindProperty]
+        [BindProperty, Required, StringLength(100)]
+        public string Name { get; set; } = string.Empty;
+
+        [BindProperty, Required, StringLength(100)]
+        public string Surname { get; set; } = string.Empty;
+
+        [BindProperty, Required, StringLength(100)]
         public string Password { get; set; } = string.Empty;
 
         [BindProperty]
         public int? SelectedAccountId { get; set; }
 
-        [BindProperty(SupportsGet = true)]
+        [BindProperty]
         public string Mode { get; set; } = "new";
 
-        public SelectList AccountList { get; set; } = default!;
-        public List<Account> AdminList { get; set; } = new();
+        public SelectList AccountList { get; private set; } = default!;
+        public List<Account> AdminList { get; private set; } = new();
         public string SuccessMessage { get; set; } = string.Empty;
         public string ErrorMessage { get; set; } = string.Empty;
 
-        public void OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
-            if (HttpContext.Session.GetString("UserType") != "Administrator")
-            {
-                Response.Redirect("/AccessDenied");
-                return;
-            }
-
-            LoadSelectList();
-            LoadAdminList();
+            if (!IsAdmin()) return RedirectToPage("/AccessDenied");
+            await LoadListsAsync();
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (HttpContext.Session.GetString("UserType") != "Administrator")
-            {
-                return RedirectToPage("/AccessDenied");
-            }
+            if (!IsAdmin()) return RedirectToPage("/AccessDenied");
+            await LoadListsAsync();
 
-            if (Request.Form["Mode"] == "new")
+            if (Mode == "new")
             {
-                if (string.IsNullOrWhiteSpace(Account.Login) || string.IsNullOrWhiteSpace(Password))
+                if (!ModelState.IsValid)
                 {
-                    ErrorMessage = "Login i has³o s¹ wymagane.";
-                    LoadSelectList(); LoadAdminList(); return Page();
+                    ErrorMessage = "Popraw b³êdy formularza.";
+                    return Page();
                 }
 
-                if (_context.Account.Any(a => a.Login == Account.Login))
+                if (await _context.Account.AnyAsync(a => a.Login == Login))
                 {
-                    ErrorMessage = "Ten login jest ju¿ zajêty.";
-                    LoadSelectList(); LoadAdminList(); return Page();
+                    ErrorMessage = "Podany login jest ju¿ zajêty.";
+                    return Page();
                 }
 
                 if (!IsValidPassword(Password))
                 {
                     ErrorMessage = "Has³o musi mieæ min. 8 znaków, zawieraæ ma³¹ i wielk¹ literê oraz znak specjalny.";
-                    LoadSelectList(); LoadAdminList(); return Page();
+                    return Page();
                 }
 
                 var hasher = new PasswordHasher<string>();
-                Account.Password = hasher.HashPassword(null, Password);
-                Account.RoleId = 3; // Administrator
-                Account.Status = true;
+                var hashedPass = hasher.HashPassword(Login, Password);
 
-                _context.Account.Add(Account);
+                var acc = new Account
+                {
+                    Login = Login,
+                    Name = Name,
+                    Surname = Surname,
+                    Password = hashedPass,
+                    RoleId = 3,
+                    Status = true
+                };
+
+                _context.Account.Add(acc);
                 await _context.SaveChangesAsync();
 
-                SuccessMessage = "Nowy administrator zosta³ dodany.";
-                Account = new Account();
-                Password = string.Empty;
+                SuccessMessage = $"Dodano nowego administratora: {Login}.";
+                ClearForm();
             }
-            else if (Request.Form["Mode"] == "existing")
+            else // existing
             {
                 if (SelectedAccountId == null)
                 {
                     ErrorMessage = "Nie wybrano konta.";
-                    LoadSelectList(); LoadAdminList(); return Page();
+                    return Page();
                 }
 
-                var account = await _context.Account.FindAsync(SelectedAccountId.Value);
-                if (account == null || account.RoleId == 3)
+                var existing = await _context.Account.FindAsync(SelectedAccountId.Value);
+                if (existing == null)
                 {
-                    ErrorMessage = "Wybrane konto jest nieprawid³owe lub ju¿ jest administratorem.";
-                    LoadSelectList(); LoadAdminList(); return Page();
+                    ErrorMessage = "Nie znaleziono konta.";
+                    return Page();
                 }
 
-                account.RoleId = 3; 
-                _context.Account.Update(account);
+                if (existing.RoleId == 3)
+                {
+                    ErrorMessage = "Wybrane konto ju¿ ma uprawnienia administratora.";
+                    return Page();
+                }
+
+                existing.RoleId = 3;
+                existing.Status = true;
+                _context.Update(existing);
                 await _context.SaveChangesAsync();
 
-                SuccessMessage = $"Konto '{account.Login}' zosta³o podniesione do roli administratora.";
+                SuccessMessage = $"Konto {existing.Login} podniesiono do roli administratora.";
+                SelectedAccountId = null;
             }
 
-            LoadSelectList();
-            LoadAdminList();
+            await LoadListsAsync();
             return Page();
         }
 
-        private void LoadSelectList()
+        public async Task<IActionResult> OnPostRemoveAdminAsync(int adminId, string passwordToConfirm)
         {
-            var availableAccounts = _context.Account
-                .Where(a => a.RoleId == 1 || a.RoleId == 2)
-                .Select(a => new { a.Id, a.Login })
-                .ToList();
+            if (!IsAdmin()) return RedirectToPage("/AccessDenied");
 
-            AccountList = new SelectList(availableAccounts, "Id", "Login");
+            var admin = await _context.Account.FindAsync(adminId);
+            if (admin == null || admin.RoleId != 3)
+            {
+                ErrorMessage = "Nieprawid³owe konto.";
+                await LoadListsAsync();
+                return Page();
+            }
+
+            var hasher = new PasswordHasher<string>();
+            var result = hasher.VerifyHashedPassword(admin.Login, admin.Password, passwordToConfirm);
+
+            if (result != PasswordVerificationResult.Success)
+            {
+                ErrorMessage = "Niepoprawne has³o administratora.";
+                await LoadListsAsync();
+                return Page();
+            }
+
+            admin.RoleId = 1;  // klient
+            _context.Update(admin);
+            await _context.SaveChangesAsync();
+
+            SuccessMessage = $"Odebrano uprawnienia administratora kontu {admin.Login}.";
+            await LoadListsAsync();
+            return Page();
         }
 
-        private void LoadAdminList()
+        private bool IsAdmin() => HttpContext.Session.GetString("UserType") == "Administrator";
+
+        private async Task LoadListsAsync()
         {
-            AdminList = _context.Account
+            AccountList = new SelectList(
+                await _context.Account
+                    .Where(a => a.RoleId == 1 || a.RoleId == 2)
+                    .Select(a => new
+                    {
+                        a.Id,
+                        Display = $"{a.Name} {a.Surname} ({a.Login})"
+                    })
+                    .ToListAsync(),
+                "Id", "Display");
+
+            AdminList = await _context.Account
                 .Where(a => a.RoleId == 3)
-                .OrderBy(a => a.Login)
-                .ToList();
+                .OrderBy(a => a.Surname).ThenBy(a => a.Name)
+                .ToListAsync();
         }
 
-        private bool IsValidPassword(string password)
+        private static bool IsValidPassword(string password) =>
+            System.Text.RegularExpressions.Regex.IsMatch(
+                password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$");
+
+        private void ClearForm()
         {
-            return System.Text.RegularExpressions.Regex.IsMatch(password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$");
+            Login = Name = Surname = Password = string.Empty;
+            Mode = "new";
         }
     }
 }

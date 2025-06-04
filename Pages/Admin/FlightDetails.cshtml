@@ -15,7 +15,8 @@ else
     <div class="mb-4">
         <h4>Informacje o locie</h4>
         <p><strong>Data odlotu:</strong> @Model.Flight.DepartureDate.Value.AddHours(Model.Flight.DepartureAirport.TimeZoneOffset.Value)</p>
-        <p><strong>Lotnisko wylotu:</strong> @Model.Flight.DepartureAirport?.Name</p>
+		<p><strong>Lotnisko wylotu:</strong> @Model.Flight.DepartureAirport?.Name</p><a href="c:\users\pawel\documents\projektyvisualstudio\flightalright\pages\admin\flightdetails.cshtml.cs">c:\users\pawel\documents\projektyvisualstudio\flightalright\pages\admin\flightdetails.cshtml.cs</a>
+		<a href="c:\users\pawel\documents\projektyvisualstudio\flightalright\pages\admin\flightdetails.cshtml">c:\users\pawel\documents\projektyvisualstudio\flightalright\pages\admin\flightdetails.cshtml</a>
         <p><strong>Data przylotu:</strong> @Model.Flight.ArrivalDate.Value.AddHours(Model.Flight.DepartureAirport.TimeZoneOffset.Value)</p>
         <p><strong>Lotnisko przylotu:</strong> @Model.Flight.ArrivalAirport?.Name</p>
     </div>

@@ -14,5 +14,6 @@ namespace FlightAlright.Models
         public int? FlightId { get; set; }
         public Flight? Flight { get; set; }
         public float? CurrentPrice {  get; set; }
+        public bool? Status { get; set; }
     }
 }

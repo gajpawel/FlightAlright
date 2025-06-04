@@ -5,6 +5,8 @@ using FlightAlright.Middleware;
 using FlightAlright.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
+Stripe.StripeConfiguration.ApiKey = configuration["Stripe:SecretKey"];
 
 // Add services to the container.
 builder.Services.AddRazorPages();

@@ -25,7 +25,10 @@
                         @if (Context.Session?.GetString("UserType") == "Administrator")
                         {
                             <li class="nav-item">
-                                <a class="nav-link @(Context.Request.Path == "/Employees/EmployeeProfile" ? "active" : "")" asp-page="/Employees/EmployeeProfile">Panel pracownika</a>
+                                <a class="nav-link @(Context.Request.Path == "/Clients/ClientProfile" ? "active" : "")" asp-page="/Clients/ClientProfile">Bilety</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(Context.Request.Path == "/Employees/FlightSchedule" ? "active" : "")" asp-page="/Employees/FlightSchedule">Panel pracownika</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link @(Context.Request.Path == "/Admin/AdminProfile" ? "active" : "")" asp-page="/Admin/AdminProfile">Panel administratora</a>
@@ -34,7 +37,10 @@
                         else if (Context.Session?.GetString("UserType") == "Employee")
                         {
                             <li class="nav-item">
-                                <a class="nav-link @(Context.Request.Path == "/Employees/EmployeeProfile" ? "active" : "")" asp-page="/Employees/EmployeeProfile">Panel pracownika</a>
+                                <a class="nav-link @(Context.Request.Path == "/Clients/ClientProfile" ? "active" : "")" asp-page="/Clients/ClientProfile">Bilety</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(Context.Request.Path == "/Employees/FlightSchedule" ? "active" : "")" asp-page="/Employees/FlightSchedule">Panel pracownika</a>
                             </li>
                         }
                         else if (Context.Session?.GetString("UserType") == "Client")

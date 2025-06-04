@@ -58,7 +58,7 @@ namespace FlightAlright.Pages.Admin
                     ClassName = p.Class.Name,
                     CurrentPrice = ((decimal?)p.CurrentPrice) ?? 0,
                     MaxSeatsNumber = p.Class.SeatsNumber,
-                    SeatsNumber = p.Class.SeatsNumber - (_context.Ticket.Where(t => t.PriceId == p.Id).ToList()).Count
+                    SeatsNumber = _context.Ticket.Where(t => t.PriceId == p.Id && t.Status=='D').ToList().Count
                 })
                 .ToList();
 

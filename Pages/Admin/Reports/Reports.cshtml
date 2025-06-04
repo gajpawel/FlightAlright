@@ -1,0 +1,116 @@
+﻿@page
+@model FlightAlright.Pages.Admin.Reports.ReportsModel
+@{
+    ViewData["Title"] = "Raporty";
+
+    string GetActiveClass(string pageName) =>
+        ViewContext.RouteData.Values["Page"]!.ToString().EndsWith(pageName) ? "active" : "";
+}
+
+<div class="row">
+    <div class="col-md-auto">
+        <div class="admin-menu">
+            <a asp-page="/Admin/AdminProfile" class="@GetActiveClass("/AdminProfile")">Konto</a>
+            <a asp-page="/Admin/PersonelManagement" class="@GetActiveClass("/PersonelManagement")">Personel</a>
+            <a asp-page="/Admin/AirportManagement" class="@GetActiveClass("/AirportManagement")">Lotniska</a>
+            <a asp-page="/Admin/FleetManagement" class="@GetActiveClass("/FleetManagement")">Flota</a>
+            <a asp-page="/Admin/FlightManagement" class="@GetActiveClass("/FlightManagement")">Loty</a>
+            <a asp-page="/Admin/Reports/Reports" class="@GetActiveClass("/Reports/Reports")">Raporty</a>
+        </div>
+    </div>
+
+    <div class="col bg-light p-4">
+        <h2 class="mb-3">Raporty</h2>
+
+        <ul class="nav nav-tabs mb-3">
+            <li class="nav-item">
+                <a class="nav-link @(Model.Tab == "Tickets" ? "active" : "")"
+                   asp-route-tab="Tickets">Bilety</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(Model.Tab == "Flights" ? "active" : "")"
+                   asp-route-tab="Flights">Loty</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(Model.Tab == "Paycheck" ? "active" : "")"
+                   asp-route-tab="Paycheck">Wypłaty</a>
+            </li>
+        </ul>
+
+        @if (Model.Tab == "Tickets")
+        {
+            <h5>Sprzedaż biletów</h5>
+            <table class="table table-sm table-striped">
+                <thead>
+                    <tr><th>Lot</th><th>Data</th><th>Klasa</th><th>Cena</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model.Tickets)
+                    {
+                        <tr>
+                            <td>@t.FlightCode</td>
+                            <td>@t.FlightDate:yyyy-MM-dd</td>
+                            <td>@t.ClassName</td>
+                            <td>@t.Price:F2</td>
+                            <td>@t.Status</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else if (Model.Tab == "Flights")
+        {
+            <h5>Obłożenie lotów</h5>
+            <table class="table table-sm table-striped">
+                <thead>
+                    <tr><th>Lot</th><th>Data</th><th>Miejsca</th><th>Sprzedane</th><th>Obłożenie</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var f in Model.Flights)
+                    {
+                        <tr>
+                            <td>@f.FlightCode</td>
+                            <td>@f.Date:yyyy-MM-dd</td>
+                            <td>@f.TotalSeats</td>
+                            <td>@f.SoldSeats</td>
+                            <td>@($"{f.Occupancy:P1}")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <h5>Wypłaty pracowników</h5>
+            <table class="table table-sm table-striped">
+                <thead>
+                    <tr><th>Pracownik</th><th>Stanowisko</th><th>Data</th><th>Kwota</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model.Paychecks)
+                    {
+                        <tr>
+                            <td>@p.EmployeeName</td>
+                            <td>@p.Position</td>
+                            <td>@p.Date:yyyy-MM-dd</td>
+                            <td>@p.Amount:F2</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+<style>
+    .admin-menu {
+        display: flex;
+        flex-direction: column;
+        gap: .5rem;
+    }
+
+        .admin-menu a.active {
+            font-weight: 600;
+            text-decoration: underline;
+        }
+</style>
