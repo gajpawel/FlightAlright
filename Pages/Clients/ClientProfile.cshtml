@@ -11,7 +11,7 @@
 
 
 
-@if (Model.account.RoleId == 1)
+@if (Model.account != null && Model.account.RoleId == 1)
 {
     <h2>Witaj, @Model.ClientName!</h2>
     <p>To jest Twój panel klienta.</p>
@@ -20,6 +20,7 @@
     </div>
     <br>
 }
+
 <h3>Moje bilety</h3>
 <br />
 
@@ -87,3 +88,38 @@
         }
     </div>
 </div>
+<hr />
+<h3>Dostępne loty</h3>
+
+@if (Model.Flights.Count == 0)
+{
+    <p>Brak dostępnych lotów.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Skąd</th>
+                <th>Dokąd</th>
+                <th>Wylot</th>
+                <th>Przylot</th>
+                <th>Kup bilet</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var flight in Model.Flights)
+            {
+                <tr>
+                    <td>@flight.DepartureAirport?.Name</td>
+                    <td>@flight.ArrivalAirport?.Name</td>
+                    <td>@flight.DepartureDate?.AddHours(flight.DepartureAirport.TimeZoneOffset ?? 0).ToString("g")</td>
+                    <td>@flight.ArrivalDate?.AddHours(flight.ArrivalAirport.TimeZoneOffset ?? 0).ToString("g")</td>
+                    <td>
+                        <a class="btn btn-primary btn-sm" href="/Clients/BuyTicket?flightId=@flight.Id">Kup</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
