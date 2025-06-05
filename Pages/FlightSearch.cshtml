@@ -66,6 +66,8 @@
                                                 @if (flight.DepartureAirport != null)
                                                 {
                                                     <span>@flight.DepartureAirport.Name</span>
+                                                    <br>
+                                                    <small class="text-muted">@flight.DepartureAirport.City, @flight.DepartureAirport.Country</small>
 
                                                     <br>
                                                     <small class="text-muted">(@flight.DepartureAirport.Code)</small>
@@ -75,8 +77,6 @@
                                                 @if (flight.DepartureDate.HasValue)
                                                 {
                                                     <span>@flight.DepartureDate.Value.ToString("dd.MM.yyyy")</span>
-                                                    <br>
-                                                    <small class="text-muted">@flight.DepartureAirport.City, @flight.DepartureAirport.Country</small>
 
                                                     <br>
                                                     <small class="text-muted">@flight.DepartureDate.Value.ToString("HH:mm")</small>
