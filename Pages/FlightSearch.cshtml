@@ -56,6 +56,7 @@
                                         <th>Data/czas odlotu</th>
                                         <th>Lotnisko przylotu</th>
                                         <th>Data/czas przylotu</th>
+                                        <th>bilety</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -108,6 +109,18 @@
                                                 else
                                                 {
                                                     <span class="text-muted">Brak danych</span>
+                                                }
+                                            </td>
+                                            <td>                                               
+                                                <!--pokaz tylko zalogowanym uzytkownikow opcje zakupu biletu-->
+                                                <!--todo naprawic nie wiem jak to dziala-->
+                                                @if (false@* User.Identity.IsAuthenticated *@)
+                                                {
+                                                    <span>Zaloguj się, aby kupić bilet</span>
+                                                }
+                                                else
+                                                {
+                                                    <a class="btn btn-primary btn-sm" href="/Clients/BuyTicket?flightId=@flight.Id">Kup bilet</a>
                                                 }
                                             </td>
                                         </tr>
