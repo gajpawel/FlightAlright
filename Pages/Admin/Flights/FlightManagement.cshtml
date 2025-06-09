@@ -1,5 +1,5 @@
 ﻿@page
-@model FlightAlright.Pages.Admin.FlightManagementModel
+@model FlightAlright.Pages.Admin.Flights.FlightManagementModel
 @{
     ViewData["Title"] = "Zarządzanie lotami";
 }
@@ -14,11 +14,11 @@
 <div class="row">
     <div class="col-md-auto">
         <div class="admin-menu">
-            <a asp-page="./AdminProfile" class="@GetActiveClass("/AdminProfile")">Konto</a>
-            <a asp-page="./PersonelManagement" class="@GetActiveClass("/PersonelManagement")">Personel</a>
-            <a asp-page="./AirportManagement" class="@GetActiveClass("/AirportManagement")">Lotniska</a>
-            <a asp-page="./FleetManagement" class="@GetActiveClass("/FleetManagement")">Flota</a>
-            <a asp-page="./FlightManagement" class="@GetActiveClass("/FlightManagement")">Loty</a>
+            <a asp-page="/Admin/AdminProfile" class="@GetActiveClass("/AdminProfile")">Konto</a>
+            <a asp-page="/Admin/PersonelManagement" class="@GetActiveClass("/PersonelManagement")">Personel</a>
+            <a asp-page="/Admin/AirportManagement" class="@GetActiveClass("/AirportManagement")">Lotniska</a>
+            <a asp-page="/Admin/FleetManagement" class="@GetActiveClass("/FleetManagement")">Flota</a>
+            <a asp-page="/Admin/Flights/FlightManagement" class="@GetActiveClass("/Flights/FlightManagement")">Loty</a>
             <a asp-page="/Admin/Reports/Reports" class="@GetActiveClass("/Reports/Reports")">Raporty</a>
         </div>
     </div>
@@ -27,7 +27,7 @@
         <h2>Zarządzanie lotami</h2>
 
         <div class="mb-3">
-            <a asp-page="./AddFlight" asp-route-flightId="0" class="btn btn-primary">Dodaj nowy lot</a>
+            <a asp-page="/Admin/Flights/AddFlight" asp-route-flightId="0" class="btn btn-primary">Dodaj nowy lot</a>
         </div>
 
 
@@ -52,8 +52,8 @@
                             <td>@flight.ArrivalDate.Value.AddHours(flight.ArrivalAirport.TimeZoneOffset.Value)</td>
                             <td>@flight.ArrivalAirport?.Name</td>
                             <td>
-                                <a asp-page="./FlightDetails" asp-route-id="@flight.Id" class="btn btn-info btn-sm">Szczegóły</a>
-                                <a asp-page="./AddFlight" asp-route-flightId="@flight.Id" class="btn btn-warning btn-sm">Edytuj</a>
+                                <a asp-page="/Admin/Flights/FlightDetails" asp-route-id="@flight.Id" class="btn btn-info btn-sm">Szczegóły</a>
+                                <a asp-page="/Admin/Flights/AddFlight" asp-route-flightId="@flight.Id" class="btn btn-warning btn-sm">Edytuj</a>
                             </td>
                         </tr>
                     }

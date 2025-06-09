@@ -17,7 +17,6 @@ namespace FlightAlright.Pages.Clients
         public List<Ticket> CancelledTickets { get; set; } = new();
         public List<Ticket> PastTickets { get; set; } = new();
 
-        public List<Flight> Flights { get; set; } = new();
 
         public ClientProfileModel(FlightAlrightContext context)
         {
@@ -57,13 +56,6 @@ namespace FlightAlright.Pages.Clients
             ActiveTickets = tickets.Where(t => t.Status == 'K').ToList();
             CancelledTickets = tickets.Where(t => t.Status == 'A').ToList();
             PastTickets = tickets.Where(t => t.Status == 'N').ToList();
-
-           
-            Flights = _context.Flight
-                .Include(f => f.DepartureAirport)
-                .Include(f => f.ArrivalAirport)
-                .Where(f => f.Status == true)
-                .ToList();
 
             return Page();
         }

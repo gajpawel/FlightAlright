@@ -76,7 +76,7 @@ namespace FlightAlright.Pages.Employees
                         var oldTickets = _context.Ticket.Where(t => t.PriceId == price.Id).ToList();
                         foreach (var ticket in oldTickets)
                         {
-                            if (ticket.Status == 'A')
+                            if (ticket.Status == 'D')
                                 _context.Remove(ticket);
                             else if (ticket.Status == 'K')
                                 ticket.Status = 'N';

@@ -15,7 +15,7 @@ namespace FlightAlright.Models
         public Price? Price { get; set; }
         public float? TicketPrice { get; set; } //Zapamiętaj cenę aktualną w momencie zakupu biletu, na wypadek gdyby uległa zmianie
         public bool? ExtraLuggage { get; set; }
-        public char? Status { get; set; } //D - dostępny do zakupu, K - kupiony, A - anulowany, N - nieaktywny (przeszły)
+        public char? Status { get; set; } //D - dostępny do zakupu, K - kupiony, A - anulowany, N - nieaktywny (przeszły), R - zarezerwowane tymczasowo (dopóki nie potwierdzono płatności)
         public int? Seating { get; set; }
     }
 }

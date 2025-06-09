@@ -62,8 +62,8 @@ namespace FlightAlright.Pages.Clients
                         },
                     },
                 Mode = "payment",
-                SuccessUrl = "http://localhost:5263/Clients/PaymentSuccess/" + ticketId.ToString(),
-                CancelUrl = "http://localhost:5263/Clients/PaymentCancel",
+                SuccessUrl = "http://localhost:5263/PaymentResults/CancelSuccess/" + ticketId.ToString(),
+                CancelUrl = "http://localhost:5263/PaymentResults/CancelFailure/",
             };
 
             var service = new SessionService();

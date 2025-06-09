@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using FlightAlright.Models;
 using FlightAlright.Data;
 
-namespace FlightAlright.Pages.Admin
+namespace FlightAlright.Pages.Admin.Flights
 {
     public class PriceManagementModel : PageModel
     {
@@ -28,6 +28,10 @@ namespace FlightAlright.Pages.Admin
         [Required(ErrorMessage = "WprowadŸ cenê.")]
         [Range(0.01, double.MaxValue, ErrorMessage = "Cena musi byæ wiêksza ni¿ 0.")]
         public float Price { get; set; }
+        [BindProperty]
+        [Required(ErrorMessage = "WprowadŸ cenê.")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Cena musi byæ wiêksza ni¿ 0.")]
+        public float LuggagePrice { get; set; }
 
         public SelectList ClassSelectList { get; set; }
         public List<Price> ExistingPrices { get; set; }
@@ -63,6 +67,10 @@ namespace FlightAlright.Pages.Admin
                 await LoadExistingPricesAsync();
                 return Page();
             }
+
+            //Aktualizacja ceny baga¿u
+            Flight.LuggagePrice = LuggagePrice;
+            _context.SaveChanges();
 
             var newPrice = new Price
             {

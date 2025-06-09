@@ -6,6 +6,7 @@ using FlightAlright.Data;
 using FlightAlright.Models;
 using System.Linq;
 using System.Collections.Generic;
+using Stripe.Checkout;
 
 namespace FlightAlright.Pages.Clients
 {
@@ -77,25 +78,54 @@ namespace FlightAlright.Pages.Clients
                 return Page();
             }
 
+            var LuggagePrice = ExtraLuggage ? _context.Flight.FirstOrDefault(f => f.Id == FlightId).LuggagePrice : 0;
+            float totalPrice = 0;
             for (int i = 0; i < SeatCount; i++)
             {
-                var ticket = new Ticket
-                {
-                    AccountId = accountId.Value,
-                    PriceId = price.Id,
-                    TicketPrice = price.CurrentPrice,
-                    Status = 'K',
-                    ExtraLuggage = ExtraLuggage,
-                    Seating = sold + i + 1
-                };
+                //Szukam pierwszego dostêpnego biletu i dodajê do niego dane kupuj¹cego
+                var ticket = _context.Ticket.FirstOrDefault(f => f.PriceId == price.Id && f.Status=='D');
+                ticket.AccountId = accountId.Value;
+                ticket.TicketPrice = price.CurrentPrice + LuggagePrice;
+                ticket.Status = 'R';
+                ticket.ExtraLuggage = ExtraLuggage;
+                _context.SaveChanges();
 
-                _context.Ticket.Add(ticket);
+                totalPrice += ticket.TicketPrice.Value;
             }
 
             _context.SaveChanges();
 
             TempData["SuccessMessage"] = $"Kupiono {SeatCount} bilet(ów) w klasie {price.Class?.Name}.";
-            return RedirectToPage("/Clients/ClientProfile");
+
+            //Wywo³anie bramki p³atnoœci
+            var options = new SessionCreateOptions
+            {
+                PaymentMethodTypes = new List<string> { "card" },
+                LineItems = new List<SessionLineItemOptions>
+                    {
+                        new SessionLineItemOptions
+                        {
+                            PriceData = new SessionLineItemPriceDataOptions
+                            {
+                                UnitAmount = (long)totalPrice*100,
+                                Currency = "pln",
+                                ProductData = new SessionLineItemPriceDataProductDataOptions
+                                {
+                                    Name = "Op³ata za bilet",
+                                },
+                            },
+                            Quantity = 1,
+                        },
+                    },
+                Mode = "payment",
+                SuccessUrl = "http://localhost:5263/PaymentResults/PaymentSuccess/" + accountId,
+                CancelUrl = "http://localhost:5263/PaymentResults/PaymentFailure/" + accountId,
+            };
+
+            var service = new SessionService();
+            Session session = service.Create(options);
+            TempData["PaymentSuccess"] = true;
+            return Redirect(session.Url);
         }
 
         private void LoadClassOptions()
