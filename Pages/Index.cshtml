@@ -37,7 +37,7 @@
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <label for="DepartureDate" class="form-label">Data odlotu:</label>
+                                <label for="DepartureDate" class="form-label">Data odlotu:<br /><small>(czasu lokalnego)</small></label>
                                 <input asp-for="DepartureDate" type="date" class="form-control" />
                             </div>
                             <div class="col-md-3">
@@ -61,9 +61,9 @@
                                         <thead class="table-dark">
                                             <tr>
                                                 <th>Lotnisko odlotu</th>
-                                                <th>Data/czas odlotu</th>
+                                                <th>Data/czas odlotu<br /><small>(czasu lokalnego)</small></th>
                                                 <th>Lotnisko przylotu</th>
-                                                <th>Data/czas przylotu</th>
+                                                <th>Data/czas przylotu<br /><small>(czasu lokalnego)</small></th>
                                                 <th>Akcje</th> <!-- Nowa kolumna na przycisk -->
                                             </tr>
                                         </thead>
@@ -83,7 +83,7 @@
                                                         @if (flight.DepartureDate.HasValue)
                                                         {
                                                             <span>@flight.DepartureDate.Value.ToString("dd.MM.yyyy")</span><br>
-                                                            <small class="text-muted">@flight.DepartureDate.Value.ToString("HH:mm")</small>
+                                                            <small class="text-muted">@flight.DepartureDate.Value.AddHours(@flight.DepartureAirport.TimeZoneOffset.Value).ToString("HH:mm")</small>
                                                         }
                                                         else
                                                         {
@@ -102,7 +102,7 @@
                                                         @if (flight.ArrivalDate.HasValue)
                                                         {
                                                             <span>@flight.ArrivalDate.Value.ToString("dd.MM.yyyy")</span><br>
-                                                            <small class="text-muted">@flight.ArrivalDate.Value.ToString("HH:mm")</small>
+                                                            <small class="text-muted">@flight.ArrivalDate.Value.AddHours(@flight.ArrivalAirport.TimeZoneOffset.Value).ToString("HH:mm")</small>
                                                         }
                                                         else
                                                         {
