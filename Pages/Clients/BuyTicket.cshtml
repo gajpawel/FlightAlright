@@ -33,6 +33,35 @@
         </label>
     </div>
 
+    <div class="form-group">
+        <br />
+        <h4 class="mb-3">Wybierz metodę płatności</h4>
+
+        <div class="form-check mb-3">
+            <input class="form-check-input"
+                   type="radio"
+                   name="PaymentMethod"
+                   id="WalletOption"
+                   value="wallet"
+            @(Model.PaymentMethod == "wallet" ? "checked" : "") />
+            <label class="form-check-label" for="WalletOption">
+                🪙 Wirtualny portfel (@Model.Account.Money.ToString() zł dostępne)
+            </label>
+        </div>
+
+        <div class="form-check">
+            <input class="form-check-input"
+                   type="radio"
+                   name="PaymentMethod"
+                   id="CardOption"
+                   value="card"
+            @(Model.PaymentMethod == "card" ? "checked" : "")
+            <label class="form-check-label" for="CardOption">
+                💳 Karta płatnicza
+            </label>
+        </div>
+    </div>
+    <br />
     <button type="submit" class="btn btn-success">Potwierdź zakup</button>
     <a asp-page="/Clients/ClientProfile" class="btn btn-secondary">Anuluj</a>
 </form>

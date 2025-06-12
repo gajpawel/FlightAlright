@@ -21,6 +21,28 @@
     <br>
 }
 
+<div class="card shadow-sm p-4 mb-4">
+    <h3 class="mb-3">💼 Mój wirtualny portfel</h3>
+
+    <div class="mb-3">
+        <strong>Środki dostępne:</strong>
+        <span class="badge bg-success fs-5 ms-2">@Model.WalletBalance.ToString() zł</span>
+    </div>
+
+    <form method="post" asp-page-handler="TopUp">
+        <div class="row g-2 align-items-center mb-3">
+            <div class="col-md-4">
+                <label for="TopUpAmount" class="form-label">Kwota doładowania</label>
+                <input type="number" step="0.01" min="1" class="form-control" id="TopUpAmount" name="TopUpAmount" placeholder="np. 50.00" required />
+            </div>
+            <div class="col-auto mt-4">
+                <button type="submit" class="btn btn-primary">Zasil</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
 <h3>Moje bilety</h3>
 <br />
 

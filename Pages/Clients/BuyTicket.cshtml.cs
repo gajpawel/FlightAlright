@@ -7,6 +7,7 @@ using FlightAlright.Models;
 using System.Linq;
 using System.Collections.Generic;
 using Stripe.Checkout;
+using System.ComponentModel.DataAnnotations;
 
 namespace FlightAlright.Pages.Clients
 {
@@ -25,6 +26,7 @@ namespace FlightAlright.Pages.Clients
         public Flight Flight { get; set; }
 
         [BindProperty]
+        [Required(ErrorMessage = "Wybór klasy jest obowi¹zkowy.")]
         public int SelectedClassId { get; set; }
 
         [BindProperty]
@@ -35,8 +37,15 @@ namespace FlightAlright.Pages.Clients
 
         public List<SelectListItem> ClassOptions { get; set; }
 
+        public Account Account { get; set; }
+        [BindProperty]
+        public string PaymentMethod { get; set; } = "";
+
         public IActionResult OnGet(int flightId)
         {
+            PaymentMethod = "card";
+            var accountId = HttpContext.Session.GetInt32("AccountId");
+            Account = _context.Account.FirstOrDefault(a => a.Id == accountId);
             Flight = _context.Flight
                 .Include(f => f.DepartureAirport)
                 .Include(f => f.ArrivalAirport)
@@ -56,6 +65,7 @@ namespace FlightAlright.Pages.Clients
             var accountId = HttpContext.Session.GetInt32("AccountId");
             if (accountId == null)
                 return RedirectToPage("/Login");
+            var account = _context.Account.FirstOrDefault(a => a.Id == accountId);
 
             var price = _context.Price
                 .Include(p => p.Class)
@@ -95,8 +105,28 @@ namespace FlightAlright.Pages.Clients
 
             _context.SaveChanges();
 
+            if (PaymentMethod == "wallet")
+            {
+                if (account.Money < totalPrice)
+                {
+                    TempData["SuccessMessage"] = "Zbyt ma³o œrodków w wirtualnym portfelu.";
+                    var reservedTickets = _context.Ticket.Where(t => t.AccountId == accountId && t.Status == 'R').ToList();
+                    foreach (var ticket in reservedTickets)
+                    {
+                        ticket.Status = 'D';
+                        ticket.AccountId = null;
+                        ticket.TicketPrice = null;
+                        ticket.ExtraLuggage = null;
+                    }
+                    _context.SaveChanges();
+                    return RedirectToPage("/Clients/ClientProfile");
+                }
+                TempData["SuccessMessage"] = $"Kupiono {SeatCount} bilet(ów) w klasie {price.Class?.Name}.";
+                account.Money -= totalPrice;
+                _context.SaveChanges();
+                return RedirectToPage("/Clients/ClientProfile");
+            }
             TempData["SuccessMessage"] = $"Kupiono {SeatCount} bilet(ów) w klasie {price.Class?.Name}.";
-
             //Wywo³anie bramki p³atnoœci
             var options = new SessionCreateOptions
             {

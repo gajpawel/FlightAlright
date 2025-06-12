@@ -16,5 +16,6 @@ namespace FlightAlright.Models
         [ForeignKey("Role")]
         public int? RoleId { get; set; }
         public Role? Role { get; set; }
+        public float? Money { get; set; }
     }
 }
