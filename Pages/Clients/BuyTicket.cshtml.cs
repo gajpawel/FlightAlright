@@ -132,7 +132,7 @@ namespace FlightAlright.Pages.Clients
         {
             ClassOptions = _context.Price
                 .Include(p => p.Class)
-                .Where(p => p.FlightId == FlightId)
+                .Where(p => p.FlightId == FlightId && p.Status == true)
                 .Select(p => new SelectListItem
                 {
                     Value = p.Class.Id.ToString(),
