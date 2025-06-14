@@ -9,7 +9,6 @@ namespace FlightAlright.Pages;
 public class IndexModel : PageModel
 {
     private readonly ILogger<IndexModel> _logger;
-
     private readonly FlightAlrightContext _context;
 
     public IndexModel(ILogger<IndexModel> logger, FlightAlrightContext context)
@@ -26,10 +25,10 @@ public class IndexModel : PageModel
     public string grammar { get; set; } = "";
 
     [BindProperty]
-    public int? DepartureAirportId { get; set; }
+    public string? DepartureAirportName { get; set; }
 
     [BindProperty]
-    public int? ArrivalAirportId { get; set; }
+    public string? ArrivalAirportName { get; set; }
 
     [BindProperty]
     public DateTime? DepartureDate { get; set; }
@@ -52,9 +51,7 @@ public class IndexModel : PageModel
 
     public void LoadAirports()
     {
-        airports = _context.Airport
-            .Distinct()
-            .ToList();
+        airports = _context.Airport.Distinct().ToList();
     }
 
     public void LoadAllFlights()
@@ -62,8 +59,7 @@ public class IndexModel : PageModel
         allFlights = _context.Flight
             .Include(f => f.DepartureAirport)
             .Include(f => f.ArrivalAirport)
-            .Where(f => f.Status == true) // Only active flights
-            .Distinct()
+            .Where(f => f.Status == true)
             .ToList();
     }
 
@@ -72,38 +68,34 @@ public class IndexModel : PageModel
         var query = _context.Flight
             .Include(f => f.DepartureAirport)
             .Include(f => f.ArrivalAirport)
-            .Where(f => f.Status == true) // Only active flights
+            .Where(f => f.Status == true)
             .AsQueryable();
 
-        // If both airports are selected, search for exact route
-        if (DepartureAirportId.HasValue && ArrivalAirportId.HasValue)
+        if (!string.IsNullOrWhiteSpace(DepartureAirportName))
         {
-            query = query.Where(f => f.DepartureAirportId == DepartureAirportId &&
-                                   f.ArrivalAirportId == ArrivalAirportId);
+            query = query.Where(f =>
+                f.DepartureAirport.Name.Contains(DepartureAirportName) ||
+                f.DepartureAirport.City.Contains(DepartureAirportName) ||
+                f.DepartureAirport.Code.Contains(DepartureAirportName));
         }
-        // If only departure airport is selected, show all flights from that airport
-        else if (DepartureAirportId.HasValue)
-        {
-            query = query.Where(f => f.DepartureAirportId == DepartureAirportId);
-        }
-        // If only arrival airport is selected, show all flights to that airport
-        else if (ArrivalAirportId.HasValue)
-        {
-            query = query.Where(f => f.ArrivalAirportId == ArrivalAirportId);
-        }
-        // If neither is selected, show all flights
 
-        // Filter by departure date if provided
+        if (!string.IsNullOrWhiteSpace(ArrivalAirportName))
+        {
+            query = query.Where(f =>
+                f.ArrivalAirport.Name.Contains(ArrivalAirportName) ||
+                f.ArrivalAirport.City.Contains(ArrivalAirportName) ||
+                f.ArrivalAirport.Code.Contains(ArrivalAirportName));
+        }
+
         if (DepartureDate.HasValue)
         {
             var selectedDate = DepartureDate.Value.Date;
-            query = query.Where(f => f.DepartureDate.HasValue &&
-                                   f.DepartureDate.Value.Date == selectedDate);
+            query = query.Where(f => f.DepartureDate.HasValue && f.DepartureDate.Value.Date == selectedDate);
         }
 
         searchResults = query.ToList();
 
-        int tempCount = searchResults.Count();
+        int tempCount = searchResults.Count;
         int[] grammarhelp = { 2, 3, 4 };
 
         if (tempCount == 1)
@@ -123,10 +115,9 @@ public class IndexModel : PageModel
     public IActionResult OnPostLogout()
     {
         HttpContext.Session.Clear();
-        return RedirectToPage("/Index"); 
+        return RedirectToPage("/Index");
     }
 
-    //Zmieñ status na false dla lotów, które ju¿ siê odby³y
     public void UpdateFlightStatus()
     {
         var now = DateTime.UtcNow;
@@ -143,8 +134,8 @@ public class IndexModel : PageModel
             if (adjustedArrivalTime < now)
             {
                 flight.Status = false;
-                var oldFightPrices = _context.Price.Where(p => p.FlightId == flight.Id).ToList();
-                foreach (var price in oldFightPrices)
+                var oldPrices = _context.Price.Where(p => p.FlightId == flight.Id).ToList();
+                foreach (var price in oldPrices)
                 {
                     var oldTickets = _context.Ticket.Where(t => t.PriceId == price.Id).ToList();
                     foreach (var ticket in oldTickets)
@@ -159,6 +150,6 @@ public class IndexModel : PageModel
         }
 
         _context.SaveChanges();
-
     }
 }
+
