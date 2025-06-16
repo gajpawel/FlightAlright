@@ -20,7 +20,7 @@ namespace FlightAlright.Pages.Clients
             _context = context;
         }
 
-        [BindProperty]
+        [BindProperty(SupportsGet = true)]
         public int FlightId { get; set; }
 
         public Flight Flight { get; set; }
@@ -73,23 +73,23 @@ namespace FlightAlright.Pages.Clients
 
             if (price == null)
             {
-                ModelState.AddModelError(string.Empty, "Nie znaleziono wybranej klasy.");
+                TempData["SuccessMessage"] = "Nie znaleziono wybranej klasy.";
                 LoadClassOptions();
-                return Page();
+                return RedirectToPage("/Clients/BuyTicket", new { flightId = FlightId });
             }
 
-            var totalSeats = price.Class.SeatsNumber ?? 0;
-            var sold = _context.Ticket.Count(t => t.PriceId == price.Id && t.Status == 'K');
+            var availableSeats = _context.Ticket.Count(t => t.PriceId == price.Id && t.Status == 'D');
 
-            if (SeatCount > (totalSeats - sold))
+            if (availableSeats < SeatCount)
             {
-                ModelState.AddModelError(string.Empty, "Brak wystarczaj¹cej liczby miejsc.");
+                TempData["SuccessMessage"] = "Brak wystarczaj¹cej liczby miejsc.";
                 LoadClassOptions();
-                return Page();
+                return RedirectToPage("/Clients/BuyTicket", new { flightId = FlightId });
             }
 
             var LuggagePrice = ExtraLuggage ? _context.Flight.FirstOrDefault(f => f.Id == FlightId).LuggagePrice : 0;
             float totalPrice = 0;
+
             for (int i = 0; i < SeatCount; i++)
             {
                 //Szukam pierwszego dostêpnego biletu i dodajê do niego dane kupuj¹cego

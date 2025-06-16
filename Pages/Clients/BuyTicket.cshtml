@@ -4,6 +4,11 @@
     ViewData["Title"] = "Kup bilet";
 }
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
 <h2>Kup bilet na lot:</h2>
 <p>
     <strong>Skąd:</strong> @Model.Flight.DepartureAirport?.Name <br />

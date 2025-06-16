@@ -35,41 +35,34 @@ namespace FlightAlright.Pages.Clients
             departureOffset = ticket2.Price.Flight.DepartureAirport.TimeZoneOffset.Value;
             days = (ticket.Price.Flight.DepartureDate.Value - DateTime.UtcNow).TotalDays;
             if (days < 20)
-                ticketPrice = ticket.TicketPrice.Value * 80;
-            else ticketPrice = ticket.TicketPrice.Value * 100;
+                ticketPrice = ticket.TicketPrice.Value * 0.8f;
+            else ticketPrice = ticket.TicketPrice.Value;
             ticketId = ticket.Id;
         }
 
         public IActionResult OnPost()
         {
-            var options = new SessionCreateOptions
+            var ticket = _context.Ticket.FirstOrDefault(t => t.Id == ticketId);
+            if (ticket == null)
+                return Page();
+            ticket.Status = 'A';
+            var accountId = HttpContext.Session.GetInt32("AccountId");
+            if (accountId == null)
+                return RedirectToPage("/Login");
+            var account = _context.Account.FirstOrDefault(a => a.Id == accountId);
+            account.Money += ticketPrice;
+            Ticket emptyticket = new Ticket
             {
-                PaymentMethodTypes = new List<string> { "card" },
-                LineItems = new List<SessionLineItemOptions>
-                    {
-                        new SessionLineItemOptions
-                        {
-                            PriceData = new SessionLineItemPriceDataOptions
-                            {
-                                UnitAmount = (long)ticketPrice,
-                                Currency = "pln",
-                                ProductData = new SessionLineItemPriceDataProductDataOptions
-                                {
-                                    Name = "Zwrot biletu",
-                                },
-                            },
-                            Quantity = 1,
-                        },
-                    },
-                Mode = "payment",
-                SuccessUrl = "http://localhost:5263/PaymentResults/CancelSuccess/" + ticketId.ToString(),
-                CancelUrl = "http://localhost:5263/PaymentResults/CancelFailure/",
+                AccountId = null,
+                PriceId = ticket.PriceId,
+                TicketPrice = null,
+                ExtraLuggage = null,
+                Status = 'D',
+                Seating = ticket.Seating
             };
-
-            var service = new SessionService();
-            Session session = service.Create(options);
-            TempData["PaymentSuccess"] = true;
-            return Redirect(session.Url);
+            _context.Add(emptyticket);
+            _context.SaveChanges();
+            return RedirectToPage("/Clients/ClientProfile");
         }
     }
 }
