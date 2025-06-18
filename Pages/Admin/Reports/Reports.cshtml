@@ -2,12 +2,13 @@
 @model FlightAlright.Pages.Admin.Reports.ReportsModel
 @{
     ViewData["Title"] = "Raporty";
-
-    string GetActiveClass(string pageName) =>
-        ViewContext.RouteData.Values["Page"]!.ToString().EndsWith(pageName) ? "active" : "";
+    string GetActiveClass(string page) =>
+        ViewContext.RouteData.Values["Page"]!.ToString()
+            .EndsWith(page, StringComparison.OrdinalIgnoreCase) ? "active" : "";
 }
 
 <div class="row">
+    <!-- MENU -->
     <div class="col-md-auto">
         <div class="admin-menu">
             <a asp-page="/Admin/AdminProfile" class="@GetActiveClass("/AdminProfile")">Konto</a>
@@ -19,9 +20,11 @@
         </div>
     </div>
 
+    <!-- CONTENT -->
     <div class="col bg-light p-4">
         <h2 class="mb-3">Raporty</h2>
 
+        <!-- Tabs -->
         <ul class="nav nav-tabs mb-3">
             <li class="nav-item">
                 <a class="nav-link @(Model.Tab == "Tickets" ? "active" : "")"
@@ -31,73 +34,161 @@
                 <a class="nav-link @(Model.Tab == "Flights" ? "active" : "")"
                    asp-route-tab="Flights">Loty</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link @(Model.Tab == "Paycheck" ? "active" : "")"
-                   asp-route-tab="Paycheck">Wypłaty</a>
-            </li>
         </ul>
+
+        <!-- Export -->
+        <div class="d-flex justify-content-end">
+            <a asp-page-handler="Export"
+               asp-route-tab="@Model.Tab"
+               asp-route-FlightCodeFilter="@Model.FlightCodeFilter"
+               asp-route-ClassFilter="@Model.ClassFilter"
+               asp-route-StatusFilter="@Model.StatusFilter"
+               asp-route-DateFilter="@Model.DateFilter"
+               asp-route-OnlyWithSales="@Model.OnlyWithSales"
+               class="btn btn-sm btn-success mb-2">
+                Pobierz CSV
+            </a>
+        </div>
 
         @if (Model.Tab == "Tickets")
         {
-            <h5>Sprzedaż biletów</h5>
+            <!-- FILTERS -->
+            <form method="get" class="row g-2 mb-3">
+                <input type="hidden" name="tab" value="Tickets" />
+
+                <!-- flight -->
+                <div class="col-auto">
+                    <select class="form-select form-select-sm" name="FlightCodeFilter"
+                            onchange="this.form.submit()">
+                        <option value="" selected="@string.IsNullOrEmpty(Model.FlightCodeFilter)">
+                            Wszystkie loty
+                        </option>
+                        @foreach (var c in Model.FlightCodes)
+                        {
+                            <option value="@c" selected="@(Model.FlightCodeFilter == c)">@c</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Data -->
+                <div class="col-auto">
+                    <select class="form-select form-select-sm" name="DateFilter"
+                            onchange="this.form.submit()">
+                        <option value="" selected="@string.IsNullOrEmpty(Model.DateFilter)">
+                            Wszystkie daty
+                        </option>
+                        @foreach (var d in Model.FlightDates)
+                        {
+                            var v = d.ToString("yyyy-MM-dd");
+                            <option value="@v"
+                                    selected="@(Model.DateFilter == v)">@v</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- class -->
+                <div class="col-auto">
+                    <select class="form-select form-select-sm" name="ClassFilter"
+                            onchange="this.form.submit()">
+                        <option value="" selected="@string.IsNullOrEmpty(Model.ClassFilter)">
+                            Wszystkie klasy
+                        </option>
+                        @foreach (var c in Model.ClassNames)
+                        {
+                            <option value="@c" selected="@(Model.ClassFilter == c)">@c</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Status -->
+                <div class="col-auto">
+                    <select class="form-select form-select-sm" name="StatusFilter"
+                            onchange="this.form.submit()">
+                        <option value="" selected="@(!Model.StatusFilter.HasValue)">
+                            Wszystkie statusy
+                        </option>
+                        <option value="K" selected="@(Model.StatusFilter == 'K')">Kupiony</option>
+                        <option value="N" selected="@(Model.StatusFilter == 'N')">Nieaktywny</option>
+                        <option value="D" selected="@(Model.StatusFilter == 'D')">Dostępny</option>
+                        <option value="R" selected="@(Model.StatusFilter == 'R')">Rezerwacja</option>
+                        <option value="A" selected="@(Model.StatusFilter == 'A')">Anulowany</option>
+                    </select>
+                </div>
+            </form>
+
+            <!-- TABLE: Tickets -->
             <table class="table table-sm table-striped">
                 <thead>
-                    <tr><th>Lot</th><th>Data</th><th>Klasa</th><th>Cena</th><th>Status</th></tr>
+                    <tr>
+                        <th>Lot</th>
+                        <th>Data</th>
+                        <th>Klasa</th>
+                        <th>Cena</th>
+                        <th>Status</th>
+                    </tr>
                 </thead>
                 <tbody>
                     @foreach (var t in Model.Tickets)
                     {
                         <tr>
                             <td>@t.FlightCode</td>
-                            <td>@t.FlightDate:yyyy-MM-dd</td>
+                            <td>@t.FlightDate.ToString("yyyy-MM-dd HH:mm")</td>
                             <td>@t.ClassName</td>
-                            <td>@t.Price:F2</td>
+                            <td>@t.Price.ToString("F2")</td>
                             <td>@t.Status</td>
                         </tr>
                     }
                 </tbody>
             </table>
+
+            <p class="fw-bold">
+                Łącznie sprzedanych biletów: @Model.TicketCount |
+                Suma przychodu: @Model.TicketRevenue.ToString("F2") zł
+            </p>
         }
-        else if (Model.Tab == "Flights")
+        else
         {
-            <h5>Obłożenie lotów</h5>
+            <!-- FILTER: only with sales -->
+            <form method="get" class="form-check mb-3">
+                <input type="hidden" name="tab" value="Flights" />
+                <label class="form-check-label">
+                    <input class="form-check-input" type="checkbox"
+                           name="OnlyWithSales" value="true"
+                           @(Model.OnlyWithSales ? "checked" : "")
+                           onchange="this.form.submit()" />
+                    Pokaż tylko loty ze sprzedanymi biletami
+                </label>
+            </form>
+
+            <!-- TABLE: Flights -->
             <table class="table table-sm table-striped">
                 <thead>
-                    <tr><th>Lot</th><th>Data</th><th>Miejsca</th><th>Sprzedane</th><th>Obłożenie</th></tr>
+                    <tr>
+                        <th>Lot</th>
+                        <th>Data</th>
+                        <th>Miejsca</th>
+                        <th>Sprzedane</th>
+                        <th>Obłożenie</th>
+                    </tr>
                 </thead>
                 <tbody>
                     @foreach (var f in Model.Flights)
                     {
                         <tr>
                             <td>@f.FlightCode</td>
-                            <td>@f.Date:yyyy-MM-dd</td>
+                            <td>@f.Date.ToString("yyyy-MM-dd")</td>
                             <td>@f.TotalSeats</td>
                             <td>@f.SoldSeats</td>
-                            <td>@($"{f.Occupancy:P1}")</td>
+                            <td>@f.Occupancy.ToString("P1")</td>
                         </tr>
                     }
                 </tbody>
             </table>
-        }
-        else
-        {
-            <h5>Wypłaty pracowników</h5>
-            <table class="table table-sm table-striped">
-                <thead>
-                    <tr><th>Pracownik</th><th>Stanowisko</th><th>Data</th><th>Kwota</th></tr>
-                </thead>
-                <tbody>
-                    @foreach (var p in Model.Paychecks)
-                    {
-                        <tr>
-                            <td>@p.EmployeeName</td>
-                            <td>@p.Position</td>
-                            <td>@p.Date:yyyy-MM-dd</td>
-                            <td>@p.Amount:F2</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+
+            <p class="fw-bold">
+                Łącznie lotów: @Model.FlightCount |
+                Średnie obłożenie: @Model.AvgOccupancy.ToString("P1")
+            </p>
         }
     </div>
 </div>
