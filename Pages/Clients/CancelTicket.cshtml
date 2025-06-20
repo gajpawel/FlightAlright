@@ -6,12 +6,13 @@
 <h2>Anuluj zakupiony bilet</h2>
 @if(Model.days < 20)
 {
-    <div>Pozostały czas do odlotu wynosi mniej niż 20 dni. Na twoje konto zostanie zwrócone 80% ceny biletu (@(Model.ticket.TicketPrice * 0.8) zł).</div>
+    <div>Pozostały czas do odlotu wynosi mniej niż 20 dni. Do twojego wirtualnego portfela zostanie zwrócone 80% ceny biletu (@(Model.ticket.TicketPrice * 0.8) zł).</div>
     <br >
 }
 else
 {
-    <div>Na twoje konto zostanie zwrócona pełna kwota.</div><br>
+    <div>Do twojego wirtualnego portfela zostanie zwrócona pełna kwota.</div>
+    <br>
 }
 <div class="mb-4">
     <h4>Dane biletu</h4>

@@ -1,5 +1,5 @@
 ﻿@page "{id:int}"
-@model FlightAlright.Pages.Admin.FlightDetailsModel
+@model FlightAlright.Pages.Admin.Flights.FlightDetailsModel
 @{
     ViewData["Title"] = "Szczegóły lotu";
 }
@@ -15,14 +15,13 @@ else
     <div class="mb-4">
         <h4>Informacje o locie</h4>
         <p><strong>Data odlotu:</strong> @Model.Flight.DepartureDate.Value.AddHours(Model.Flight.DepartureAirport.TimeZoneOffset.Value)</p>
-		<p><strong>Lotnisko wylotu:</strong> @Model.Flight.DepartureAirport?.Name</p><a href="c:\users\pawel\documents\projektyvisualstudio\flightalright\pages\admin\flightdetails.cshtml.cs">c:\users\pawel\documents\projektyvisualstudio\flightalright\pages\admin\flightdetails.cshtml.cs</a>
-		<a href="c:\users\pawel\documents\projektyvisualstudio\flightalright\pages\admin\flightdetails.cshtml">c:\users\pawel\documents\projektyvisualstudio\flightalright\pages\admin\flightdetails.cshtml</a>
+		<p><strong>Lotnisko wylotu:</strong> @Model.Flight.DepartureAirport?.Name
         <p><strong>Data przylotu:</strong> @Model.Flight.ArrivalDate.Value.AddHours(Model.Flight.DepartureAirport.TimeZoneOffset.Value)</p>
         <p><strong>Lotnisko przylotu:</strong> @Model.Flight.ArrivalAirport?.Name</p>
     </div>
 
     <div class="mb-4">
-        <h4>Samolot</h4>
+        <b>Samolot: </b>
         @if (Model.Flight.Plane != null)
         {
             <p>@Model.Flight.Plane.Brand.Name @Model.Flight.Plane.Brand.Model (ID: @Model.Flight.Plane.Id)</p>
@@ -79,4 +78,5 @@ else
             <p><em>Brak dostępnych cen.</em></p>
         }
     </div>
+    <div><b>Cena dodatkowego bagażu:</b> @Model.Flight.LuggagePrice zł</div>
 }

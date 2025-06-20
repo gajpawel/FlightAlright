@@ -5,6 +5,132 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome to FlightAlright Airlines</h1>
-    <img src="~/images/FlightAlright.png" height="300" width="300" alt="FlightAlright Airlines Logo" />
+    <div>
+        <h1 class="display-4">FlightAlright Airlines <img src="~/images/FlightAlright.png" height="125" width="125" alt="FlightAlright Airlines Logo" /></h1>
+    </div>
+    <div>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-10">
+                    <h3 class="text-center mb-4">Wyszukiwarka lotów</h3>
+
+                    <form method="post" class="mb-4">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                <label for="DepartureAirportName" class="form-label">Miejsce odlotu:</label>
+                                <input asp-for="DepartureAirportName" class="form-control" placeholder="Wpisz nazwę, miasto lub kod IATA" />
+                            </div>
+                            <div class="col-md-3">
+                                <label for="ArrivalAirportName" class="form-label">Miejsce przylotu:</label>
+                                <input asp-for="ArrivalAirportName" class="form-control" placeholder="Wpisz nazwę, miasto lub kod IATA" />
+                            </div>
+                            <div class="col-md-3">
+                                <label for="DepartureDate" class="form-label">Data odlotu:<br /><small>(czasu lokalnego)</small></label>
+                                <input asp-for="DepartureDate" type="date" class="form-control" />
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-primary w-100">Wyszukaj</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    @if (Model.ShowResults)
+                    {
+                        <div class="results-section">
+                            <h3>Wyniki wyszukiwania (znaleziono @Model.searchResults.Count @Model.grammar)</h3>
+
+                            @if (Model.searchResults.Any())
+                            {
+                                var accountId = HttpContext.Session.GetInt32("AccountId");
+
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>Lotnisko odlotu</th>
+                                                <th>Data/czas odlotu<br /><small>(czasu lokalnego)</small></th>
+                                                <th>Lotnisko przylotu</th>
+                                                <th>Data/czas przylotu<br /><small>(czasu lokalnego)</small></th>
+                                                <th>Akcje</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var flight in Model.searchResults)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        @if (flight.DepartureAirport != null)
+                                                        {
+                                                            <span>@flight.DepartureAirport.Name</span>
+
+                                                            <br />
+                                                            <small class="text-muted">@flight.DepartureAirport.City, @flight.DepartureAirport.Country</small>
+
+                                                            <br />
+                                                            <small class="text-muted">(@flight.DepartureAirport.Code)</small>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (flight.DepartureDate.HasValue)
+                                                        {
+                                                            <span>@flight.DepartureDate.Value.ToString("dd.MM.yyyy")</span>
+
+                                                            <br />
+                                                            <small class="text-muted">@flight.DepartureDate.Value.AddHours(@flight.DepartureAirport.TimeZoneOffset.Value).ToString("HH:mm")</small>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="text-muted">Brak danych</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (flight.ArrivalAirport != null)
+                                                        {
+                                                            <span>@flight.ArrivalAirport.Name</span>
+
+                                                            <br />
+                                                            <small class="text-muted">@flight.ArrivalAirport.City, @flight.ArrivalAirport.Country</small>
+
+                                                            <br />
+                                                            <small class="text-muted">(@flight.ArrivalAirport.Code)</small>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (flight.ArrivalDate.HasValue)
+                                                        {
+                                                            <span>@flight.ArrivalDate.Value.ToString("dd.MM.yyyy")</span>
+
+                                                            <br />
+                                                            <small class="text-muted">@flight.ArrivalDate.Value.AddHours(@flight.ArrivalAirport.TimeZoneOffset.Value).ToString("HH:mm")</small>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="text-muted">Brak danych</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (accountId != null && flight.Status == true)
+                                                        {
+                                                            <a class="btn btn-success" href="/Clients/BuyTicket?flightId=@flight.Id">Kup bilet</a>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> Nie znaleziono lotów spełniających kryteria wyszukiwania.
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+

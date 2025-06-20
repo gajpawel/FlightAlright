@@ -36,13 +36,14 @@ namespace FlightAlright.Pages.Clients
             departureOffset = ticket2.Price.Flight.DepartureAirport.TimeZoneOffset.Value;
             days = (ticket.Price.Flight.DepartureDate.Value - DateTime.UtcNow).TotalDays;
             if (days < 20)
-                ticketPrice = ticket.TicketPrice.Value * 80;
-            else ticketPrice = ticket.TicketPrice.Value * 100;
+                ticketPrice = ticket.TicketPrice.Value * 0.8f;
+            else ticketPrice = ticket.TicketPrice.Value;
             ticketId = ticket.Id;
         }
 
         public IActionResult OnPost()
         {
+<<<<<<< HEAD
             var options = new StripeCheckout.SessionCreateOptions
             {
                 PaymentMethodTypes = new List<string> { "card" },
@@ -70,6 +71,29 @@ namespace FlightAlright.Pages.Clients
             StripeCheckout.Session session = _sessionService.Create(options);
             TempData["PaymentSuccess"] = true;
             return Redirect(session.Url);
+=======
+            var ticket = _context.Ticket.FirstOrDefault(t => t.Id == ticketId);
+            if (ticket == null)
+                return Page();
+            ticket.Status = 'A';
+            var accountId = HttpContext.Session.GetInt32("AccountId");
+            if (accountId == null)
+                return RedirectToPage("/Login");
+            var account = _context.Account.FirstOrDefault(a => a.Id == accountId);
+            account.Money += ticketPrice;
+            Ticket emptyticket = new Ticket
+            {
+                AccountId = null,
+                PriceId = ticket.PriceId,
+                TicketPrice = null,
+                ExtraLuggage = null,
+                Status = 'D',
+                Seating = ticket.Seating
+            };
+            _context.Add(emptyticket);
+            _context.SaveChanges();
+            return RedirectToPage("/Clients/ClientProfile");
+>>>>>>> c144b487d6d89f4271227e3be25f4cbfa0085361
         }
 
     }

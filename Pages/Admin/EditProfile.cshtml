@@ -17,13 +17,13 @@
 
 <form method="post">
     <div class="form-group">
-        <label asp-for="Account.Name" class="control-label"></label>
+        <label>Imię</label>
         <input asp-for="Account.Name" class="form-control" />
         <span asp-validation-for="Account.Name" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="Account.Surname" class="control-label"></label>
+        <label>Nazwisko</label>
         <input asp-for="Account.Surname" class="form-control" />
         <span asp-validation-for="Account.Surname" class="text-danger"></span>
     </div>
@@ -35,7 +35,7 @@
     </div>
 
     <div class="form-group">
-        <label>New Password</label>
+        <label>Nowe hasło</label>
         <input asp-for="NewPassword" class="form-control" type="password" />
         <span asp-validation-for="NewPassword" class="text-danger"></span>
     </div>

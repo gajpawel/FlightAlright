@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System;
 
-namespace FlightAlright.Pages.Admin
+namespace FlightAlright.Pages.Admin.Flights
 {
     public class FlightManagementModel : PageModel
     {
@@ -50,7 +50,7 @@ namespace FlightAlright.Pages.Admin
                         var oldTickets = _context.Ticket.Where(t => t.PriceId == price.Id).ToList();
                         foreach(var ticket in oldTickets)
                         {
-                            if (ticket.Status == 'A')
+                            if (ticket.Status == 'D')
                                 _context.Remove(ticket);
                             else if (ticket.Status == 'K')
                                 ticket.Status = 'N';

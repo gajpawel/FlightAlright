@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using FlightAlright.Data;
 using FlightAlright.Models;
 using Microsoft.EntityFrameworkCore;
+using Stripe.Checkout;
 
 namespace FlightAlright.Pages.Clients
 {
@@ -16,8 +17,10 @@ namespace FlightAlright.Pages.Clients
         public List<Ticket> ActiveTickets { get; set; } = new();
         public List<Ticket> CancelledTickets { get; set; } = new();
         public List<Ticket> PastTickets { get; set; } = new();
+        [BindProperty]
+        public float? TopUpAmount { get; set; }
+        public float? WalletBalance { get; set; }
 
-        public List<Flight> Flights { get; set; } = new();
 
         public ClientProfileModel(FlightAlrightContext context)
         {
@@ -58,17 +61,48 @@ namespace FlightAlright.Pages.Clients
             CancelledTickets = tickets.Where(t => t.Status == 'A').ToList();
             PastTickets = tickets.Where(t => t.Status == 'N').ToList();
 
-           
-            Flights = _context.Flight
-                .Include(f => f.DepartureAirport)
-                .Include(f => f.ArrivalAirport)
-                .Where(f => f.Status == true)
-                .ToList();
+            WalletBalance = account.Money;
 
             return Page();
         }
 
+        public IActionResult OnPost()
+        {
+            var accountId = HttpContext.Session.GetInt32("AccountId");
+            var account = _context.Account.FirstOrDefault(a => a.Id == accountId);
+            account.Money += TopUpAmount;
+            _context.SaveChanges();
 
+            //Wywo³anie bramki p³atnoœci
+            var options = new SessionCreateOptions
+            {
+                PaymentMethodTypes = new List<string> { "card" },
+                LineItems = new List<SessionLineItemOptions>
+                    {
+                        new SessionLineItemOptions
+                        {
+                            PriceData = new SessionLineItemPriceDataOptions
+                            {
+                                UnitAmount = (long)TopUpAmount*100,
+                                Currency = "pln",
+                                ProductData = new SessionLineItemPriceDataProductDataOptions
+                                {
+                                    Name = "Do³adowanie œrodków do wirtualnego portfela",
+                                },
+                            },
+                            Quantity = 1,
+                        },
+                    },
+                Mode = "payment",
+                SuccessUrl = "http://localhost:5263/PaymentResults/WalletSuccess/",
+                CancelUrl = "http://localhost:5263/PaymentResults/WalletFailure/",
+            };
+
+            var service = new SessionService();
+            Session session = service.Create(options);
+            TempData["PaymentSuccess"] = true;
+            return Redirect(session.Url);
+        }
 
         public void UpdateFlightStatus()
         {

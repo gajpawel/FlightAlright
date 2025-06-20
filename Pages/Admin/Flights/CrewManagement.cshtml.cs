@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
-namespace FlightAlright.Pages.Admin
+namespace FlightAlright.Pages.Admin.Flights
 {
     public class CrewManagementModel : PageModel
     {
@@ -147,7 +147,7 @@ namespace FlightAlright.Pages.Admin
                 _context.SaveChanges();
             }
 
-            return RedirectToPage("/Admin/PriceManagement", new { flightId = Flight.Id });
+            return RedirectToPage("/Admin/Flights/PriceManagement", new { flightId = Flight.Id });
         }
 
     }

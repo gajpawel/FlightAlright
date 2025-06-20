@@ -2,6 +2,7 @@
 
 namespace FlightAlright.Models
 {
+    //Prawdopodobnie do usunięcia
     public class Paycheck
     {
         [Key]

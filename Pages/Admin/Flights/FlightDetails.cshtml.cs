@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FlightAlright.Pages.Admin
+namespace FlightAlright.Pages.Admin.Flights
 {
     public class FlightDetailsModel : PageModel
     {
@@ -51,7 +51,7 @@ namespace FlightAlright.Pages.Admin
 
             // Ceny biletów
             Prices = _context.Price
-                .Where(p => p.FlightId == id)
+                .Where(p => p.FlightId == id && p.Status==true)
                 .Include(p => p.Class)
                 .Select(p => new PriceViewModel
                 {

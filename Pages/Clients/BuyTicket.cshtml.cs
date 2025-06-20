@@ -6,6 +6,8 @@ using FlightAlright.Data;
 using FlightAlright.Models;
 using System.Linq;
 using System.Collections.Generic;
+using Stripe.Checkout;
+using System.ComponentModel.DataAnnotations;
 
 namespace FlightAlright.Pages.Clients
 {
@@ -18,12 +20,13 @@ namespace FlightAlright.Pages.Clients
             _context = context;
         }
 
-        [BindProperty]
+        [BindProperty(SupportsGet = true)]
         public int FlightId { get; set; }
 
         public Flight Flight { get; set; }
 
         [BindProperty]
+        [Required(ErrorMessage = "Wybór klasy jest obowi¹zkowy.")]
         public int SelectedClassId { get; set; }
 
         [BindProperty]
@@ -34,8 +37,15 @@ namespace FlightAlright.Pages.Clients
 
         public List<SelectListItem> ClassOptions { get; set; }
 
+        public Account Account { get; set; }
+        [BindProperty]
+        public string PaymentMethod { get; set; } = "";
+
         public IActionResult OnGet(int flightId)
         {
+            PaymentMethod = "card";
+            var accountId = HttpContext.Session.GetInt32("AccountId");
+            Account = _context.Account.FirstOrDefault(a => a.Id == accountId);
             Flight = _context.Flight
                 .Include(f => f.DepartureAirport)
                 .Include(f => f.ArrivalAirport)
@@ -55,6 +65,7 @@ namespace FlightAlright.Pages.Clients
             var accountId = HttpContext.Session.GetInt32("AccountId");
             if (accountId == null)
                 return RedirectToPage("/Login");
+            var account = _context.Account.FirstOrDefault(a => a.Id == accountId);
 
             var price = _context.Price
                 .Include(p => p.Class)
@@ -62,47 +73,96 @@ namespace FlightAlright.Pages.Clients
 
             if (price == null)
             {
-                ModelState.AddModelError(string.Empty, "Nie znaleziono wybranej klasy.");
+                TempData["SuccessMessage"] = "Nie znaleziono wybranej klasy.";
                 LoadClassOptions();
-                return Page();
+                return RedirectToPage("/Clients/BuyTicket", new { flightId = FlightId });
             }
 
-            var totalSeats = price.Class.SeatsNumber ?? 0;
-            var sold = _context.Ticket.Count(t => t.PriceId == price.Id && t.Status == 'K');
+            var availableSeats = _context.Ticket.Count(t => t.PriceId == price.Id && t.Status == 'D');
 
-            if (SeatCount > (totalSeats - sold))
+            if (availableSeats < SeatCount)
             {
-                ModelState.AddModelError(string.Empty, "Brak wystarczaj¹cej liczby miejsc.");
+                TempData["SuccessMessage"] = "Brak wystarczaj¹cej liczby miejsc.";
                 LoadClassOptions();
-                return Page();
+                return RedirectToPage("/Clients/BuyTicket", new { flightId = FlightId });
             }
+
+            var LuggagePrice = ExtraLuggage ? _context.Flight.FirstOrDefault(f => f.Id == FlightId).LuggagePrice : 0;
+            float totalPrice = 0;
 
             for (int i = 0; i < SeatCount; i++)
             {
-                var ticket = new Ticket
-                {
-                    AccountId = accountId.Value,
-                    PriceId = price.Id,
-                    TicketPrice = price.CurrentPrice,
-                    Status = 'K',
-                    ExtraLuggage = ExtraLuggage,
-                    Seating = sold + i + 1
-                };
+                //Szukam pierwszego dostêpnego biletu i dodajê do niego dane kupuj¹cego
+                var ticket = _context.Ticket.FirstOrDefault(f => f.PriceId == price.Id && f.Status=='D');
+                ticket.AccountId = accountId.Value;
+                ticket.TicketPrice = price.CurrentPrice + LuggagePrice;
+                ticket.Status = 'R';
+                ticket.ExtraLuggage = ExtraLuggage;
+                _context.SaveChanges();
 
-                _context.Ticket.Add(ticket);
+                totalPrice += ticket.TicketPrice.Value;
             }
 
             _context.SaveChanges();
 
+            if (PaymentMethod == "wallet")
+            {
+                if (account.Money < totalPrice)
+                {
+                    TempData["SuccessMessage"] = "Zbyt ma³o œrodków w wirtualnym portfelu.";
+                    var reservedTickets = _context.Ticket.Where(t => t.AccountId == accountId && t.Status == 'R').ToList();
+                    foreach (var ticket in reservedTickets)
+                    {
+                        ticket.Status = 'D';
+                        ticket.AccountId = null;
+                        ticket.TicketPrice = null;
+                        ticket.ExtraLuggage = null;
+                    }
+                    _context.SaveChanges();
+                    return RedirectToPage("/Clients/ClientProfile");
+                }
+                TempData["SuccessMessage"] = $"Kupiono {SeatCount} bilet(ów) w klasie {price.Class?.Name}.";
+                account.Money -= totalPrice;
+                _context.SaveChanges();
+                return RedirectToPage("/Clients/ClientProfile");
+            }
             TempData["SuccessMessage"] = $"Kupiono {SeatCount} bilet(ów) w klasie {price.Class?.Name}.";
-            return RedirectToPage("/Clients/ClientProfile");
+            //Wywo³anie bramki p³atnoœci
+            var options = new SessionCreateOptions
+            {
+                PaymentMethodTypes = new List<string> { "card" },
+                LineItems = new List<SessionLineItemOptions>
+                    {
+                        new SessionLineItemOptions
+                        {
+                            PriceData = new SessionLineItemPriceDataOptions
+                            {
+                                UnitAmount = (long)totalPrice*100,
+                                Currency = "pln",
+                                ProductData = new SessionLineItemPriceDataProductDataOptions
+                                {
+                                    Name = "Op³ata za bilet",
+                                },
+                            },
+                            Quantity = 1,
+                        },
+                    },
+                Mode = "payment",
+                SuccessUrl = "http://localhost:5263/PaymentResults/PaymentSuccess/" + accountId,
+                CancelUrl = "http://localhost:5263/PaymentResults/PaymentFailure/" + accountId,
+            };
+
+            var service = new SessionService();
+            Session session = service.Create(options);
+            TempData["PaymentSuccess"] = true;
+            return Redirect(session.Url);
         }
 
         private void LoadClassOptions()
         {
             ClassOptions = _context.Price
                 .Include(p => p.Class)
-                .Where(p => p.FlightId == FlightId)
+                .Where(p => p.FlightId == FlightId && p.Status == true)
                 .Select(p => new SelectListItem
                 {
                     Value = p.Class.Id.ToString(),

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using FlightAlright.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace FlightAlright.Pages.Admin
+namespace FlightAlright.Pages.Admin.Flights
 {
     public class AddFlightModel : PageModel
     {
@@ -98,7 +98,7 @@ namespace FlightAlright.Pages.Admin
                 _context.SaveChanges();
             }
 
-            return RedirectToPage("/Admin/CrewManagement", new { flightId = newFlightId });
+            return RedirectToPage("/Admin/Flights/CrewManagement", new { flightId = newFlightId });
         }
     }
 }
