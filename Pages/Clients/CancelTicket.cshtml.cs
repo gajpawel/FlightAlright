@@ -3,14 +3,14 @@ using FlightAlright.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using StripeCheckout = Stripe.Checkout;
-using DomainPrice = FlightAlright.Models.Price;
+using Stripe.Checkout;
+
 namespace FlightAlright.Pages.Clients
 {
     public class CancelTicketModel : PageModel
     {
         private readonly FlightAlrightContext _context;
-        private readonly Stripe.Checkout.SessionService _sessionService;
+
         public double days { get; set; }
         public int departureOffset { get; set; }
         public int arrivalOffset { get; set; }
@@ -21,10 +21,9 @@ namespace FlightAlright.Pages.Clients
         [BindProperty]
         public int ticketId { get; set; }
 
-        public CancelTicketModel(FlightAlrightContext context, Stripe.Checkout.SessionService? sessionService = null)
+        public CancelTicketModel(FlightAlrightContext context)
         {
             _context = context;
-            _sessionService = sessionService ?? new Stripe.Checkout.SessionService();
         }
         public void OnGet(int ticketId)
         {
@@ -43,34 +42,27 @@ namespace FlightAlright.Pages.Clients
 
         public IActionResult OnPost()
         {
-            var options = new StripeCheckout.SessionCreateOptions
+            var ticket = _context.Ticket.FirstOrDefault(t => t.Id == ticketId);
+            if (ticket == null)
+                return Page();
+            ticket.Status = 'A';
+            var accountId = HttpContext.Session.GetInt32("AccountId");
+            if (accountId == null)
+                return RedirectToPage("/Login");
+            var account = _context.Account.FirstOrDefault(a => a.Id == accountId);
+            account.Money += ticketPrice;
+            Ticket emptyticket = new Ticket
             {
-                PaymentMethodTypes = new List<string> { "card" },
-                LineItems = new List<StripeCheckout.SessionLineItemOptions>
-        {
-            new StripeCheckout.SessionLineItemOptions
-            {
-                PriceData = new StripeCheckout.SessionLineItemPriceDataOptions
-                {
-                    UnitAmount = (long)ticketPrice,
-                    Currency = "pln",
-                    ProductData = new StripeCheckout.SessionLineItemPriceDataProductDataOptions
-                    {
-                        Name = "Zwrot biletu",
-                    },
-                },
-                Quantity = 1,
-            },
-        },
-                Mode = "payment",
-                SuccessUrl = "http://localhost:5263/Clients/PaymentSuccess/" + ticketId.ToString(),
-                CancelUrl = "http://localhost:5263/Clients/PaymentCancel",
+                AccountId = null,
+                PriceId = ticket.PriceId,
+                TicketPrice = null,
+                ExtraLuggage = null,
+                Status = 'D',
+                Seating = ticket.Seating
             };
-
-            StripeCheckout.Session session = _sessionService.Create(options);
-            TempData["PaymentSuccess"] = true;
-            return Redirect(session.Url);
+            _context.Add(emptyticket);
+            _context.SaveChanges();
+            return RedirectToPage("/Clients/ClientProfile");
         }
-
     }
 }
